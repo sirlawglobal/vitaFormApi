@@ -106,6 +106,7 @@ async function bootstrap(): Promise<void> {
         { type: 'apiKey', name: 'X-Session-Token', in: 'header' },
         'session-token',
       )
+      .addBearerAuth()
       .build();
 
     const document = SwaggerModule.createDocument(app, swaggerConfig);

@@ -12,7 +12,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiSecurity, ApiHeader } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -58,6 +58,7 @@ export class AuthController {
 
   @UseGuards(SessionAuthGuard)
   @ApiBearerAuth()
+  @ApiSecurity('session-token')
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Revoke the current device session from Redis' })
@@ -68,6 +69,7 @@ export class AuthController {
 
   @UseGuards(SessionAuthGuard)
   @ApiBearerAuth()
+  @ApiSecurity('session-token')
   @Post('logout-all')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'O(1) multi-device wipe: log out from all active devices' })
@@ -78,6 +80,7 @@ export class AuthController {
 
   @UseGuards(SessionAuthGuard)
   @ApiBearerAuth()
+  @ApiSecurity('session-token')
   @Get('sessions')
   @ApiOperation({ summary: 'List all active device sessions for the authenticated user' })
   @ApiResponse({ status: 200, description: 'List of active sessions returned' })
@@ -87,6 +90,7 @@ export class AuthController {
 
   @UseGuards(SessionAuthGuard)
   @ApiBearerAuth()
+  @ApiSecurity('session-token')
   @Delete('sessions/:token')
   @ApiOperation({ summary: 'Revoke a specific remote device session' })
   @ApiResponse({ status: 200, description: 'Remote session terminated' })
