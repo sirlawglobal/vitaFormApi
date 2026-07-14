@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Worker, Job } from 'bullmq';
-import { QUEUE_NAMES } from '../../common/constants/queue-names.constants';
+import { QUEUE_NAMES, JOB_NAMES } from '../../common/constants/queue-names.constants';
 
 /**
  * SmsWorker consumes jobs from the 'sms.queue' via BullMQ.
@@ -55,7 +55,11 @@ export class SmsWorker implements OnModuleInit, OnModuleDestroy {
     const { name, data } = job;
 
     switch (name) {
+      case JOB_NAMES.SEND_VERIFICATION_OTP:
+      case JOB_NAMES.RESEND_OTP:
+      case JOB_NAMES.SEND_OTP:
       case 'send-verification-otp':
+      case 'resend-otp':
       case 'send-otp':
         if (data.type === 'password-reset') {
           await this.handlePasswordResetOtp(data);
@@ -63,7 +67,9 @@ export class SmsWorker implements OnModuleInit, OnModuleDestroy {
           await this.handleVerificationOtp(data);
         }
         break;
+      case JOB_NAMES.SEND_PASSWORD_RESET_OTP:
       case 'send-password-reset-otp':
+      case 'send-password-reset':
         await this.handlePasswordResetOtp(data);
         break;
       default:

@@ -11,7 +11,7 @@ import { hashPassword, comparePassword } from '../../common/utils/hash.util';
 import { BusinessException } from '../../common/exceptions/business.exception';
 import { ERROR_CODES } from '../../common/constants/error-codes.constants';
 import { DOMAIN_EVENTS } from '../../common/constants/event-names.constants';
-import { QUEUE_NAMES } from '../../common/constants/queue-names.constants';
+import { QUEUE_NAMES, JOB_NAMES } from '../../common/constants/queue-names.constants';
 import { Role } from '../../common/enums/role.enum';
 import { ROLE_PERMISSIONS } from '../../common/constants/permissions.constants';
 import { RegisterDto } from './dto/register.dto';
@@ -101,14 +101,16 @@ export class AuthService {
         ]);
 
         await Promise.all([
-          this.queueService.add(QUEUE_NAMES.EMAIL, 'send-verification-otp', {
+          this.queueService.add(QUEUE_NAMES.EMAIL, JOB_NAMES.SEND_VERIFICATION_OTP, {
             email: cleanEmail,
             firstName: dto.firstName,
             otp: emailOtp.otp,
+            type: 'email-verify',
           }),
-          this.queueService.add(QUEUE_NAMES.SMS, 'send-verification-otp', {
+          this.queueService.add(QUEUE_NAMES.SMS, JOB_NAMES.SEND_VERIFICATION_OTP, {
             phone: cleanPhone,
             otp: phoneOtp.otp,
+            type: 'phone-verify',
           }),
         ]);
       }
@@ -221,14 +223,14 @@ export class AuthService {
     const otpResult = await this.otpService.createOtp(dto.type, cleanId);
 
     if (dto.type.includes('email') || dto.type === 'password-reset') {
-      await this.queueService.add(QUEUE_NAMES.EMAIL, 'send-otp', {
+      await this.queueService.add(QUEUE_NAMES.EMAIL, JOB_NAMES.RESEND_OTP, {
         email: user.email,
         firstName: user.firstName,
         otp: otpResult.otp,
         type: dto.type,
       });
     } else {
-      await this.queueService.add(QUEUE_NAMES.SMS, 'send-otp', {
+      await this.queueService.add(QUEUE_NAMES.SMS, JOB_NAMES.RESEND_OTP, {
         phone: user.phone,
         otp: otpResult.otp,
         type: dto.type,
@@ -311,10 +313,11 @@ export class AuthService {
 
     if (user) {
       const otpResult = await this.otpService.createOtp('password-reset', cleanEmail);
-      await this.queueService.add(QUEUE_NAMES.EMAIL, 'send-password-reset', {
+      await this.queueService.add(QUEUE_NAMES.EMAIL, JOB_NAMES.SEND_PASSWORD_RESET_OTP, {
         email: user.email,
         firstName: user.firstName,
         otp: otpResult.otp,
+        type: 'password-reset',
       });
     }
 

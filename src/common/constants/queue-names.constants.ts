@@ -22,9 +22,12 @@ export const JOB_NAMES = {
   SEND_EMAIL: 'send-email',
   SEND_BULK_EMAIL: 'send-bulk-email',
 
-  // SMS
+  // SMS / OTP
   SEND_SMS: 'send-sms',
   SEND_OTP: 'send-otp',
+  SEND_VERIFICATION_OTP: 'send-verification-otp',
+  RESEND_OTP: 'resend-otp',
+  SEND_PASSWORD_RESET_OTP: 'send-password-reset-otp',
 
   // Recommendation
   GENERATE_RECS: 'generate-recs',
