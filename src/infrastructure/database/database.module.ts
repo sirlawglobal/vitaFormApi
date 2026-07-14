@@ -9,7 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         uri: config.getOrThrow<string>('database.uri'),
-        dbName: config.get<string>('database.dbName', 'vitaform'),
+        dbName: config.get<string>('database.dbName', 'vitaForm'),
         // Connection pool settings for production
         maxPoolSize: 10,
         serverSelectionTimeoutMS: 5000,
