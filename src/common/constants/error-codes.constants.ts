@@ -1,0 +1,80 @@
+/**
+ * Standardized error codes for the Vitafoam API.
+ * These codes are returned in error responses so clients can handle
+ * specific error conditions programmatically.
+ */
+export const ERROR_CODES = {
+  // ── Generic ────────────────────────────────────────────────
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  NOT_FOUND: 'NOT_FOUND',
+  CONFLICT: 'CONFLICT',
+  FORBIDDEN: 'FORBIDDEN',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  BAD_REQUEST: 'BAD_REQUEST',
+  TOO_MANY_REQUESTS: 'TOO_MANY_REQUESTS',
+  SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
+
+  // ── Auth ───────────────────────────────────────────────────
+  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  SESSION_EXPIRED: 'SESSION_EXPIRED',
+  SESSION_NOT_FOUND: 'SESSION_NOT_FOUND',
+  ACCOUNT_DISABLED: 'ACCOUNT_DISABLED',
+  ACCOUNT_NOT_VERIFIED: 'ACCOUNT_NOT_VERIFIED',
+  INVALID_OTP: 'INVALID_OTP',
+  OTP_EXPIRED: 'OTP_EXPIRED',
+  OTP_LIMIT_EXCEEDED: 'OTP_LIMIT_EXCEEDED',
+  MAX_DEVICES_REACHED: 'MAX_DEVICES_REACHED',
+
+  // ── Users ──────────────────────────────────────────────────
+  USER_NOT_FOUND: 'USER_NOT_FOUND',
+  EMAIL_ALREADY_EXISTS: 'EMAIL_ALREADY_EXISTS',
+  PHONE_ALREADY_EXISTS: 'PHONE_ALREADY_EXISTS',
+
+  // ── Products ───────────────────────────────────────────────
+  PRODUCT_NOT_FOUND: 'PRODUCT_NOT_FOUND',
+  PRODUCT_INACTIVE: 'PRODUCT_INACTIVE',
+  VARIANT_NOT_FOUND: 'VARIANT_NOT_FOUND',
+
+  // ── Inventory ──────────────────────────────────────────────
+  INSUFFICIENT_STOCK: 'INSUFFICIENT_STOCK',
+  STOCK_RESERVATION_FAILED: 'STOCK_RESERVATION_FAILED',
+
+  // ── Cart ───────────────────────────────────────────────────
+  CART_EMPTY: 'CART_EMPTY',
+  CART_ITEM_NOT_FOUND: 'CART_ITEM_NOT_FOUND',
+
+  // ── Orders ─────────────────────────────────────────────────
+  ORDER_NOT_FOUND: 'ORDER_NOT_FOUND',
+  ORDER_CANNOT_BE_CANCELLED: 'ORDER_CANNOT_BE_CANCELLED',
+  ORDER_STATUS_INVALID_TRANSITION: 'ORDER_STATUS_INVALID_TRANSITION',
+
+  // ── Payments ───────────────────────────────────────────────
+  PAYMENT_FAILED: 'PAYMENT_FAILED',
+  PAYMENT_NOT_FOUND: 'PAYMENT_NOT_FOUND',
+  PAYMENT_ALREADY_PROCESSED: 'PAYMENT_ALREADY_PROCESSED',
+  INVALID_WEBHOOK_SIGNATURE: 'INVALID_WEBHOOK_SIGNATURE',
+
+  // ── Coupons ────────────────────────────────────────────────
+  COUPON_NOT_FOUND: 'COUPON_NOT_FOUND',
+  COUPON_EXPIRED: 'COUPON_EXPIRED',
+  COUPON_USAGE_LIMIT_REACHED: 'COUPON_USAGE_LIMIT_REACHED',
+  COUPON_ALREADY_USED: 'COUPON_ALREADY_USED',
+  COUPON_MIN_ORDER_NOT_MET: 'COUPON_MIN_ORDER_NOT_MET',
+
+  // ── Reviews ────────────────────────────────────────────────
+  REVIEW_NOT_FOUND: 'REVIEW_NOT_FOUND',
+  REVIEW_ALREADY_EXISTS: 'REVIEW_ALREADY_EXISTS',
+
+  // ── Warranty ───────────────────────────────────────────────
+  WARRANTY_NOT_FOUND: 'WARRANTY_NOT_FOUND',
+  WARRANTY_ALREADY_REGISTERED: 'WARRANTY_ALREADY_REGISTERED',
+  WARRANTY_EXPIRED: 'WARRANTY_EXPIRED',
+
+  // ── Storage ────────────────────────────────────────────────
+  FILE_TOO_LARGE: 'FILE_TOO_LARGE',
+  INVALID_FILE_TYPE: 'INVALID_FILE_TYPE',
+  UPLOAD_FAILED: 'UPLOAD_FAILED',
+} as const;
+
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
