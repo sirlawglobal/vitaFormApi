@@ -1,5 +1,5 @@
 import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
-import sanitizeHtml from 'sanitize-html';
+import * as sanitizeHtmlLib from 'sanitize-html';
 
 /**
  * Recursively sanitizes all string values in the incoming DTO
@@ -13,7 +13,11 @@ export class SanitizePipe implements PipeTransform {
 
   private sanitize(value: unknown): unknown {
     if (typeof value === 'string') {
-      return sanitizeHtml(value, { allowedTags: [], allowedAttributes: {} });
+      const sanitizeFn: any =
+        typeof sanitizeHtmlLib === 'function'
+          ? sanitizeHtmlLib
+          : (sanitizeHtmlLib as any).default || sanitizeHtmlLib;
+      return sanitizeFn(value, { allowedTags: [], allowedAttributes: {} });
     }
     if (Array.isArray(value)) {
       return value.map((item) => this.sanitize(item));

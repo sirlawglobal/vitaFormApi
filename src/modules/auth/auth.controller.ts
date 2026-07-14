@@ -26,7 +26,7 @@ import { SessionAuthGuard } from '../../common/guards/session-auth.guard';
 import { SessionData } from '../../common/types/session.types';
 
 @ApiTags('Auth')
-@Controller('api/v1/auth')
+@Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
