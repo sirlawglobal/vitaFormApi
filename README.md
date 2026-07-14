@@ -1,98 +1,101 @@
+# Vitafoam Mobile Commerce Platform — Enterprise Backend API
+
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <img src="https://img.shields.io/badge/NestJS-v11-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
+  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/MongoDB_Atlas-7.0-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/RabbitMQ_CloudAMQP-4.2-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ" />
+  <img src="https://img.shields.io/badge/Upstash_Redis-Serverless-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/BullMQ-v5-FF0055?style=for-the-badge" alt="BullMQ" />
+  <img src="https://img.shields.io/badge/Render-Live_Production-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render" />
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+---
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🌐 Live Production Environments (Render)
 
-## Description
+| Service | Live URL | Description |
+| :--- | :--- | :--- |
+| **📚 Interactive Swagger UI** | [https://vitaformapi.onrender.com/docs](https://vitaformapi.onrender.com/docs) | Complete OpenAPI documentation with `X-Session-Token` auth and progressive tag filtering |
+| **📡 Primary API Base URL** | [https://vitaformapi.onrender.com/api/v1](https://vitaformapi.onrender.com/api/v1) | Base endpoint for all mobile & web commerce HTTP requests |
+| **❤️ Live Health & Diagnostics** | [https://vitaformapi.onrender.com/health](https://vitaformapi.onrender.com/health) | Real-time diagnostics monitoring MongoDB Atlas, CloudAMQP, Upstash Redis, and Memory |
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 🏗️ Architectural Highlights
 
+The **Vitafoam Mobile Commerce Platform** is engineered for high throughput, zero-trust security, and horizontal scalability across cloud infrastructure:
+
+1. **ACID Transactional Outbox Pattern**:
+   Every state modification (`UserRegistered`, `OrderPlaced`, `PaymentVerified`) is committed atomically within a Mongoose transaction alongside an `outbox_events` record. An asynchronous background `OutboxWorker` polls every 5s to guarantee at-least-once domain event publication to CloudAMQP RabbitMQ without dual-write failures.
+2. **Multi-Channel Asynchronous Notifications (`NotificationsModule`)**:
+   Powered by **BullMQ & Upstash Serverless Redis**. When verification codes or transactional alerts are triggered, jobs are pushed instantly into high-concurrency queues (`email.queue`, `sms.queue`, `notification.queue`) and processed by:
+   - **`EmailWorker`**: Renders templates & dispatches via Nodemailer SMTP / SendGrid (with instant developer console banners).
+   - **`SmsWorker`**: Dispatches real SMS via Termii API / Twilio.
+   - **`PushWorker`**: Delivers lock-screen alerts to physical iOS & Android devices via Firebase Cloud Messaging (`firebase-admin`).
+3. **Zero-Trust Security & RBAC Guard Chain**:
+   All endpoints enforce strict input sanitization (`SanitizePipe`), tiered rate limiting (`ThrottlerModule`), session token verification (`SessionAuthGuard`), role checking (`RolesGuard`), and fine-grained permission authorization (`PermissionsGuard`).
+4. **Progressive OpenAPI Documentation**:
+   The Swagger document dynamically inspects registered route trees (`main.ts`) and automatically prunes unbuilt/future phase tags, ensuring frontend developers only see 100% functional, live endpoints right now (`Auth` & `Health`).
+
+---
+
+## 🚀 Quick Start (Local Development)
+
+### 1. Prerequisites
+- **Node.js**: v20+ (`v24.14+` recommended)
+- **Package Manager**: `npm` or `pnpm`
+
+### 2. Installation & Configuration
+Clone the repository and install dependencies:
 ```bash
-$ npm install
+git clone https://github.com/sirlawglobal/vitaFormApi.git
+cd vitaFormApi
+npm install
 ```
 
-## Compile and run the project
+Make sure your `.env` file is present at the project root with your credentials (see `.env.example`).
+
+### 3. Start Development Server
+Run the application locally with watch mode / hot-reloading:
+```bash
+npm run start:dev
+```
+Once started, your local endpoints will be available at:
+- **API Base**: `http://localhost:3000/api/v1`
+- **Swagger Docs**: `http://localhost:3000/docs`
+- **Health Check**: `http://localhost:3000/health`
+
+---
+
+## 📋 Progressive Roadmap & Implementation Status
+
+For our detailed 14-phase implementation plan, see [PROJECT_PHASES.md](./PROJECT_PHASES.md).
+
+| Phase | Module | Status | Highlights |
+| :---: | :--- | :---: | :--- |
+| **1 & 2** | Core Infrastructure | ✅ **Live** | NestJS v11, Pino Logging, CloudAMQP RabbitMQ, Upstash Redis over TLS, Outbox Polling Worker, Terminus Diagnostics |
+| **3** | Authentication & RBAC | ✅ **Live** | Customer Registration, Login (`session-token`), OTP verification, Password resets, Zero-trust session revocation (`auth.sessions`) |
+| **11 (Early)** | BullMQ Notifications | ✅ **Live** | `EmailWorker`, `SmsWorker`, and `PushWorker` consumers actively handling verification codes and real-time Dev Banners |
+| **4 – 10** | Commerce Engine | ⏳ Pending | User Profiles, Product Catalog, Inventory Reservation, Cart, Checkout, Orders, Payment Gateway Webhooks (Paystack/Flutterwave) |
+| **12 – 14** | Personalization & Admin | ⏳ Pending | Support Chat WebSockets, Mattress Finder / Sleep Quiz, Warranty Registration, Geospatial Dealer Locator, Analytics Engine |
+
+---
+
+## 🧪 Testing
 
 ```bash
-# development
-$ npm run start
+# Type verification
+npm run typecheck
 
-# watch mode
-$ npm run start:dev
+# Unit tests
+npm run test
 
-# production mode
-$ npm run start:prod
+# End-to-End (e2e) tests
+npm run test:e2e
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 📄 License & Ownership
+Copyright © 2026 **Vitafoam Nigeria Plc / Sirlaw Global**. All rights reserved.
