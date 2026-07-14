@@ -42,9 +42,11 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Authenticate credentials and issue a Redis session hash' })
-  @ApiHeader({ name: 'x-device-id', required: false, description: 'Unique device hardware identifier' })
-  @ApiHeader({ name: 'x-device-platform', required: false, enum: ['ios', 'android', 'web'] })
+  @ApiOperation({
+    summary: 'Authenticate credentials and issue a zero-trust Redis session token',
+    description:
+      'Returns a sessionToken. For mobile clients (iOS/Android), optionally pass headers: `x-device-id`, `x-device-platform` (ios/android/web), `x-device-model`, and `x-fcm-token` to track physical devices.',
+  })
   @ApiResponse({ status: 200, description: 'Session issued successfully' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @ApiResponse({ status: 429, description: 'Too many failed login attempts' })
