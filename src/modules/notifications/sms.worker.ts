@@ -56,7 +56,12 @@ export class SmsWorker implements OnModuleInit, OnModuleDestroy {
 
     switch (name) {
       case 'send-verification-otp':
-        await this.handleVerificationOtp(data);
+      case 'send-otp':
+        if (data.type === 'password-reset') {
+          await this.handlePasswordResetOtp(data);
+        } else {
+          await this.handleVerificationOtp(data);
+        }
         break;
       case 'send-password-reset-otp':
         await this.handlePasswordResetOtp(data);
