@@ -22,6 +22,11 @@ export default registerAs('redis', () => {
     host.includes('upstash.io') ||
     host.includes('.cloud');
 
+  const bullUseTls =
+    process.env.BULL_REDIS_TLS === 'true' ||
+    bullHost.includes('upstash.io') ||
+    bullHost.includes('.cloud');
+
   return {
     host,
     port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
@@ -34,10 +39,7 @@ export default registerAs('redis', () => {
       port: parseInt(process.env.BULL_REDIS_PORT ?? '6379', 10),
       password: process.env.BULL_REDIS_PASSWORD || undefined,
       db: parseInt(process.env.BULL_REDIS_DB ?? '1', 10),
-      tls:
-        useTls || bullHost.includes('upstash.io') || bullHost.includes('.cloud')
-          ? {}
-          : undefined,
+      tls: bullUseTls ? {} : undefined,
     },
   };
 });

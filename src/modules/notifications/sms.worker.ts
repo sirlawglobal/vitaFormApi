@@ -30,7 +30,9 @@ export class SmsWorker implements OnModuleInit, OnModuleDestroy {
       },
       {
         connection,
-        concurrency: 5,
+        concurrency: 1,
+        stalledInterval: 30000,
+        maxStalledCount: 1,
       },
     );
 

@@ -35,8 +35,8 @@ export class QueueService {
       const queue = new Queue(queueName, {
         connection,
         defaultJobOptions: {
-          removeOnComplete: { count: 1000 },
-          removeOnFail: { count: 5000 },
+          removeOnComplete: { count: 100, age: 24 * 3600 }, // Keep last 100 or 24 hours
+          removeOnFail: { count: 500, age: 7 * 24 * 3600 }, // Keep last 500 or 7 days
           attempts: 3,
           backoff: { type: 'exponential', delay: 2000 },
         },

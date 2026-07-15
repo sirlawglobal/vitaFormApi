@@ -48,7 +48,9 @@ export class EmailWorker implements OnModuleInit, OnModuleDestroy {
       },
       {
         connection,
-        concurrency: 5,
+        concurrency: 1,           // Reduce concurrent connections to minimize Redis commands
+        stalledInterval: 30000,   // Check for stalled jobs every 30s (default: 30ms — a major polling flood)
+        maxStalledCount: 1,       // Max stall retries before marking job as failed
       },
     );
 
