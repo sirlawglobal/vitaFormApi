@@ -24,6 +24,8 @@ export const appConfigSchema = Joi.object({
   RATE_LIMIT_AUTH_MAX: Joi.number().default(10),
   SESSION_TTL_SECONDS: Joi.number().default(604800),
   SESSION_MAX_DEVICES: Joi.number().default(5),
+  EMAIL_PROVIDER: Joi.string().default('brevo'),
+  BREVO_API_KEY: Joi.string().optional().allow(''),
 });
 
 export default registerAs('app', () => ({
@@ -53,5 +55,15 @@ export default registerAs('app', () => ({
   session: {
     ttlSeconds: parseInt(process.env.SESSION_TTL_SECONDS ?? '604800', 10),
     maxDevices: parseInt(process.env.SESSION_MAX_DEVICES ?? '5', 10),
+  },
+  email: {
+    provider: process.env.EMAIL_PROVIDER ?? 'brevo',
+    brevoApiKey: process.env.BREVO_API_KEY,
+    from: process.env.EMAIL_FROM ?? 'noreply@vitafoam.com.ng',
+    fromName: process.env.EMAIL_FROM_NAME ?? 'Vitafoam Commerce',
+    smtpHost: process.env.SMTP_HOST,
+    smtpPort: parseInt(process.env.SMTP_PORT ?? '587', 10),
+    smtpUser: process.env.SMTP_USER,
+    smtpPass: process.env.SMTP_PASS,
   },
 }));
