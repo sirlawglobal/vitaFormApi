@@ -1,20 +1,18 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { OutboxRepository } from './outbox.repository';
-import { MessagingService } from '../messaging/messaging.service';
 import { OutboxEventDocument } from './outbox.schema';
-import { ROUTING_KEYS } from '../../common/constants/exchange-names.constants';
-import { DOMAIN_EVENTS } from '../../common/constants/event-names.constants';
 
 /**
- * OutboxWorker — polls the outbox_events collection and publishes
- * pending events to RabbitMQ.
+ * OutboxWorker — polls the outbox_events collection and emits
+ * pending events in-memory via NestJS EventEmitter2.
  *
  * Architecture guarantees:
  * 1. Events are saved atomically with domain data (same Mongo session)
  * 2. Worker retries on failure up to maxRetries
- * 3. Events are marked PROCESSING before publish to prevent duplicate delivery
- * 4. Published events are marked PUBLISHED and cleaned up by TTL index
+ * 3. Events are marked PROCESSING before emitting to prevent duplicate delivery
+ * 4. Emitted events are marked PUBLISHED and cleaned up by TTL index
  */
 @Injectable()
 export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
@@ -25,39 +23,14 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
   private readonly batchSize: number;
   private readonly maxRetries: number;
 
-  /** Map domain event names to RabbitMQ routing keys */
-  private readonly eventToRoutingKey: Record<string, string> = {
-    [DOMAIN_EVENTS.ORDER_CREATED]: ROUTING_KEYS.ORDER_CREATED,
-    [DOMAIN_EVENTS.ORDER_CONFIRMED]: ROUTING_KEYS.ORDER_CONFIRMED,
-    [DOMAIN_EVENTS.ORDER_SHIPPED]: ROUTING_KEYS.ORDER_SHIPPED,
-    [DOMAIN_EVENTS.ORDER_DELIVERED]: ROUTING_KEYS.ORDER_DELIVERED,
-    [DOMAIN_EVENTS.ORDER_CANCELLED]: ROUTING_KEYS.ORDER_CANCELLED,
-    [DOMAIN_EVENTS.PAYMENT_COMPLETED]: ROUTING_KEYS.PAYMENT_COMPLETED,
-    [DOMAIN_EVENTS.PAYMENT_FAILED]: ROUTING_KEYS.PAYMENT_FAILED,
-    [DOMAIN_EVENTS.USER_REGISTERED]: ROUTING_KEYS.USER_REGISTERED,
-    [DOMAIN_EVENTS.USER_VERIFIED]: ROUTING_KEYS.USER_VERIFIED,
-    [DOMAIN_EVENTS.PRODUCT_CREATED]: ROUTING_KEYS.PRODUCT_CREATED,
-    [DOMAIN_EVENTS.PRODUCT_UPDATED]: ROUTING_KEYS.PRODUCT_UPDATED,
-    [DOMAIN_EVENTS.PRODUCT_DELETED]: ROUTING_KEYS.PRODUCT_DELETED,
-    [DOMAIN_EVENTS.STOCK_DEPLETED]: ROUTING_KEYS.STOCK_DEPLETED,
-    [DOMAIN_EVENTS.REVIEW_SUBMITTED]: ROUTING_KEYS.REVIEW_SUBMITTED,
-    [DOMAIN_EVENTS.WARRANTY_REGISTERED]: ROUTING_KEYS.WARRANTY_REGISTERED,
-    [DOMAIN_EVENTS.WARRANTY_EXPIRING]: ROUTING_KEYS.WARRANTY_EXPIRING,
-    [DOMAIN_EVENTS.RECOMMENDATION_REQUESTED]:
-      ROUTING_KEYS.RECOMMENDATION_REQUESTED,
-  };
-
   constructor(
     private readonly outboxRepository: OutboxRepository,
-    private readonly messagingService: MessagingService,
+    private readonly eventEmitter: EventEmitter2,
     private readonly config: ConfigService,
   ) {
-    this.pollIntervalMs = this.config.get<number>(
-      'rabbitmq.outbox.pollIntervalMs',
-      5000,
-    );
-    this.batchSize = this.config.get<number>('rabbitmq.outbox.batchSize', 50);
-    this.maxRetries = this.config.get<number>('rabbitmq.outbox.maxRetries', 5);
+    this.pollIntervalMs = this.config.get<number>('outbox.pollIntervalMs', 5000);
+    this.batchSize = this.config.get<number>('outbox.batchSize', 50);
+    this.maxRetries = this.config.get<number>('outbox.maxRetries', 5);
   }
 
   onModuleInit(): void {
@@ -114,18 +87,8 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
   }
 
   private async publishEvent(event: OutboxEventDocument): Promise<void> {
-    const routingKey = this.eventToRoutingKey[event.eventType];
-
-    if (!routingKey) {
-      this.logger.warn(
-        `No routing key for event type: ${event.eventType} — marking as published`,
-      );
-      await this.outboxRepository.markPublished(event._id.toString());
-      return;
-    }
-
     try {
-      const published = await this.messagingService.publish(routingKey, {
+      await this.eventEmitter.emitAsync(event.eventType, {
         eventType: event.eventType,
         aggregateType: event.aggregateType,
         aggregateId: event.aggregateId,
@@ -133,19 +96,15 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
         timestamp: new Date().toISOString(),
       });
 
-      if (published) {
-        await this.outboxRepository.markPublished(event._id.toString());
-        this.logger.debug(
-          `Published: ${event.eventType} [${event.aggregateId}] → ${routingKey}`,
-        );
-      } else {
-        throw new Error('Channel returned false — back-pressure');
-      }
+      await this.outboxRepository.markPublished(event._id.toString());
+      this.logger.debug(
+        `Emitted in-memory event: ${event.eventType} [${event.aggregateId}]`,
+      );
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(
-        `Failed to publish event ${event._id}: ${errorMessage}`,
+        `Failed to emit event ${event._id}: ${errorMessage}`,
       );
       await this.outboxRepository.markFailed(
         event._id.toString(),

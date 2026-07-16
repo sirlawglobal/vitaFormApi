@@ -76,7 +76,7 @@ export class PushWorker implements OnModuleInit, OnModuleDestroy {
         });
         this.isFirebaseInitialized = true;
         this.logger.log(`Firebase Admin SDK initialized from file: ${serviceAccountPath}`);
-      } else if (projectId && clientEmail && privateKey) {
+      } else if (projectId && clientEmail && privateKey && projectId !== 'placeholder' && privateKey !== 'placeholder') {
         admin.initializeApp({
           credential: admin.credential.cert({
             projectId,

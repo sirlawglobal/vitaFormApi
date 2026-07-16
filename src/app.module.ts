@@ -19,8 +19,6 @@ import {
   databaseConfigSchema,
   redisConfig,
   redisConfigSchema,
-  rabbitmqConfig,
-  rabbitmqConfigSchema,
   storageConfig,
   aiConfig,
   paymentConfig,
@@ -32,7 +30,6 @@ import { AppLoggerModule } from './infrastructure/logger/logger.module';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
 import { QueueModule } from './infrastructure/queue/queue.module';
-import { MessagingModule } from './infrastructure/messaging/messaging.module';
 import { OutboxModule } from './infrastructure/outbox/outbox.module';
 import { HealthModule } from './infrastructure/health/health.module';
 
@@ -63,7 +60,6 @@ const ENV = process.env.APP_ENV ?? 'development';
         appConfig,
         databaseConfig,
         redisConfig,
-        rabbitmqConfig,
         storageConfig,
         aiConfig,
         paymentConfig,
@@ -71,8 +67,7 @@ const ENV = process.env.APP_ENV ?? 'development';
       ],
       validationSchema: appConfigSchema
         .concat(databaseConfigSchema)
-        .concat(redisConfigSchema)
-        .concat(rabbitmqConfigSchema),
+        .concat(redisConfigSchema),
       validationOptions: {
         allowUnknown: true,
         abortEarly: false,
@@ -84,7 +79,6 @@ const ENV = process.env.APP_ENV ?? 'development';
     DatabaseModule,
     CacheModule,
     QueueModule,
-    MessagingModule,
     OutboxModule,
     HealthModule,
 

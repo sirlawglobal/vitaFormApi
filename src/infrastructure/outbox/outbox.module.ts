@@ -5,7 +5,6 @@ import { OutboxEvent, OutboxEventSchema } from './outbox.schema';
 import { OutboxRepository } from './outbox.repository';
 import { OutboxService } from './outbox.service';
 import { OutboxWorker } from './outbox.worker';
-import { MessagingModule } from '../messaging/messaging.module';
 
 @Global()
 @Module({
@@ -14,7 +13,6 @@ import { MessagingModule } from '../messaging/messaging.module';
     MongooseModule.forFeature([
       { name: OutboxEvent.name, schema: OutboxEventSchema },
     ]),
-    MessagingModule,
   ],
   providers: [OutboxRepository, OutboxService, OutboxWorker],
   exports: [OutboxService],

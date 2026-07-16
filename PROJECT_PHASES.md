@@ -1,4 +1,4 @@
-# Enterprise Build Roadmap & Project Phases
+git # Enterprise Build Roadmap & Project Phases
 ## Vitafoam Mobile Commerce Platform Backend
 **Architecture & Engineering Standard:** Domain-Driven Design (DDD), Clean Architecture, Outbox Pattern, Redis Session Management, and Asynchronous Microservice Topology.
 
@@ -10,21 +10,20 @@
 2. **Domain-Driven Design (DDD) & Clean Layering**: Strict dependency chain:
    `Controller` → `Service` → `Repository` → `Mongoose Schema` / `Outbox Table`.
    *Services never communicate directly with Mongoose collections or third-party APIs.*
-3. **Outbox Pattern for Domain Events**: Domain services write events (`OrderCreated`, `PaymentCompleted`) inside the exact same MongoDB ACID transaction as business data. The background `OutboxWorker` polls and publishes them to `RabbitMQ` (`vitaform.domain.events`) with exponential retries and guaranteed zero-data-loss delivery.
+3. **Outbox Pattern for Domain Events**: Domain services write events (`OrderCreated`, `PaymentCompleted`) inside the exact same MongoDB ACID transaction as business data. The background `OutboxWorker` polls and emits them in-memory via NestJS `EventEmitter2` (`@nestjs/event-emitter`) with exponential retries and guaranteed zero-data-loss delivery.
 4. **Redis-Backed Session Authentication**: **NO JWT REFRESH TOKENS**. Sessions are stored in high-speed Redis Hashes (`vitaform:session:{token}`) with multi-device tracking via Redis Sets (`vitaform:user:sessions:{userId}`).
 5. **Pure Redis OTP Management**: OTP codes are hashed with SHA-256 and stored strictly inside Redis (`vitaform:otp:{type}:{identifier}`) with 5-minute TTLs and brute-force rate limiters (max 5 attempts). Never stored in MongoDB.
 6. **Strategy Pattern for Providers**: AI (`Grok`, `OpenAI`, `Gemini`) and Payment (`Paystack`, `Flutterwave`, `Moniepoint`) integrations must use swappable strategies behind interfaces.
-7. **RabbitMQ + BullMQ Separation**: RabbitMQ handles Domain Event Pub/Sub (1-to-Many fan-out across bounded contexts); BullMQ handles heavy computation, PDF invoice generation, scheduled timers, and rate-limited API jobs (Point-to-Point task execution).
+7. **EventEmitter + BullMQ Event Engine**: In our Modular Monolith, `EventEmitter2` handles in-process Domain Event Pub/Sub (`@OnEvent()`), while `BullMQ` (`QueueService`) handles heavy asynchronous computation, PDF invoice generation, scheduled timers, and rate-limited API jobs (`max 5/sec`).
 8. **Layer Dependency Rules**:
    ```
    Controller → Service → Repository → Mongoose
                    ↓
                OutboxService → (Outbox saved in same Mongo transaction)
                                      ↓
-                              OutboxWorker → RabbitMQ → Consumers → BullMQ → Workers
+                              OutboxWorker → EventEmitter2 → Listeners → BullMQ → Workers
    ```
    > Services NEVER import Mongoose models directly.
-   > Services NEVER call RabbitMQ directly.
    > All external side effects go through the Outbox.
 
 ---
@@ -35,8 +34,8 @@
 | :---: | :--- | :--- | :---: |
 | **Phase 1** | System Architecture & Folder Structure | Architecture, Schemas, Redis/MQ Topology, API Catalog | ✅ **Completed** |
 | **Phase 2** | Project Bootstrap & Core Infrastructure | Config, Pino, Database, Cache, BullMQ, RabbitMQ, Outbox, Health | ✅ **Completed** |
-| **Phase 3** | Authentication & Redis Session Management | `AuthModule`, `SessionService`, `OtpService`, `UsersModule` (Base) | 🔄 **Next / Ready** |
-| **Phase 4** | Users, Profiles & Device Management | `UsersModule`, Address Management, FCM Device Tokens, Account Deletion | ⏳ **Pending** |
+| **Phase 3** | Authentication & Redis Session Management | `AuthModule`, `SessionService`, `OtpService`, `UsersModule` (Base) | ✅ **Completed** |
+| **Phase 4** | Users, Profiles & Device Management | `UsersModule`, Address Management, FCM Device Tokens, Account Deletion | 🔄 **Next / Ready** |
 | **Phase 5** | Products, Categories & Inventory | `ProductsModule`, `CategoriesModule`, `InventoryModule`, Variants, Trees | ⏳ **Pending** |
 | **Phase 6** | Search Engine | `SearchModule`, Redis Autocomplete, Popular Queries, MongoDB Text Indexes | ⏳ **Pending** |
 | **Phase 7** | AI Recommendation & Mattress Finder | `RecommendationModule`, `MattressFinderModule`, AI Strategy Pattern | ⏳ **Pending** |
@@ -87,7 +86,7 @@
 
 ---
 
-### 🔄 Phase 3: Authentication & Redis Session Management (Next / Ready)
+### ✅ Phase 3: Authentication & Redis Session Management (Completed & Verified)
 * **Objective**: Build an enterprise-grade, zero-JWT session authentication and OTP management pipeline.
 * **Key Components**:
   * **Minimal Users Bootstrap (`src/modules/users/`)**: Bootstrap `UserSchema` (`users` collection) and `UsersRepository` so auth can verify credentials (bcrypt 12 rounds), register accounts, and check verification flags in MongoDB.
@@ -121,7 +120,7 @@
 
 ---
 
-### ⏳ Phase 4: Users, Profiles & Device Management (Pending)
+### 🔄 Phase 4: Users, Profiles & Device Management (Next / Ready)
 * **Objective**: Build comprehensive user profile management, multi-address handling, device registration, and account deletion.
 * **Key Components**:
   * **`UsersService` & `UsersRepository` (`src/modules/users/`)**:

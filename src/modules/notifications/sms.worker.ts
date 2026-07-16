@@ -87,7 +87,7 @@ export class SmsWorker implements OnModuleInit, OnModuleDestroy {
     console.log(`============================================================\n`);
 
     const termiiApiKey = process.env.TERMII_API_KEY;
-    if (termiiApiKey) {
+    if (termiiApiKey && termiiApiKey !== 'placeholder') {
       try {
         const response = await fetch('https://api.ng.termii.com/api/sms/send', {
           method: 'POST',
@@ -121,7 +121,7 @@ export class SmsWorker implements OnModuleInit, OnModuleDestroy {
     console.log(`============================================================\n`);
 
     const termiiApiKey = process.env.TERMII_API_KEY;
-    if (termiiApiKey) {
+    if (termiiApiKey && termiiApiKey !== 'placeholder') {
       try {
         await fetch('https://api.ng.termii.com/api/sms/send', {
           method: 'POST',
