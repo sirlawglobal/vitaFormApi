@@ -44,6 +44,9 @@ import { SanitizePipe } from './common/pipes/sanitize.pipe';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { ProductsModule } from './modules/products/products.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 import { SessionAuthGuard } from './common/guards/session-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
@@ -102,9 +105,9 @@ const ENV = process.env.APP_ENV ?? 'development';
     AuthModule,
     UsersModule,
     NotificationsModule,
-    // ProductsModule,
-    // CategoriesModule,
-    // InventoryModule,
+    CategoriesModule,
+    ProductsModule,
+    InventoryModule,
     // CartModule,
     // CheckoutModule,
     // OrdersModule,

@@ -143,7 +143,7 @@
 
 ---
 
-### 🔄 Phase 5: Products, Categories & Inventory (Next / Ready)
+### ✅ Phase 5: Products, Categories & Inventory (Completed)
 > **Note:** Inventory is consolidated here from the original Phase 7 to enforce the correct dependency order: Products must exist before Inventory documents can reference them.
 
 * **Objective**: Build the core commerce catalog — multi-variant products, hierarchical categories, and stock management — as a unified domain phase.
@@ -172,7 +172,7 @@
 
 ---
 
-### ⏳ Phase 6: Search Engine (Pending)
+### 🔄 Phase 6: Search Engine (Next / Ready)
 * **Objective**: Provide sub-50ms autocomplete, typo-tolerant full-text search, and search history tracking.
 * **Key Components** (`src/modules/search/`):
   * **MongoDB Text Indexes**: Compound text index on `name`, `description`, `tags`, and `variants.sku` with weighted scoring.

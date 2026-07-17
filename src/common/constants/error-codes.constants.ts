@@ -31,6 +31,11 @@ export const ERROR_CODES = {
   EMAIL_ALREADY_EXISTS: 'EMAIL_ALREADY_EXISTS',
   PHONE_ALREADY_EXISTS: 'PHONE_ALREADY_EXISTS',
 
+  // ── Categories ─────────────────────────────────────────────
+  CATEGORY_NOT_FOUND: 'CATEGORY_NOT_FOUND',
+  CATEGORY_SLUG_EXISTS: 'CATEGORY_SLUG_EXISTS',
+  CATEGORY_NOT_EMPTY: 'CATEGORY_NOT_EMPTY',
+
   // ── Products ───────────────────────────────────────────────
   PRODUCT_NOT_FOUND: 'PRODUCT_NOT_FOUND',
   PRODUCT_INACTIVE: 'PRODUCT_INACTIVE',
@@ -39,6 +44,8 @@ export const ERROR_CODES = {
   // ── Inventory ──────────────────────────────────────────────
   INSUFFICIENT_STOCK: 'INSUFFICIENT_STOCK',
   STOCK_RESERVATION_FAILED: 'STOCK_RESERVATION_FAILED',
+  INVENTORY_NOT_FOUND: 'INVENTORY_NOT_FOUND',
+  INVENTORY_BUSY: 'INVENTORY_BUSY',
 
   // ── Cart ───────────────────────────────────────────────────
   CART_EMPTY: 'CART_EMPTY',
