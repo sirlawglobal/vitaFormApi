@@ -32,6 +32,7 @@ import { CacheModule } from './infrastructure/cache/cache.module';
 import { QueueModule } from './infrastructure/queue/queue.module';
 import { OutboxModule } from './infrastructure/outbox/outbox.module';
 import { HealthModule } from './infrastructure/health/health.module';
+import { StorageModule } from './infrastructure/storage/storage.module';
 
 // Common
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -84,6 +85,7 @@ const ENV = process.env.APP_ENV ?? 'development';
     QueueModule,
     OutboxModule,
     HealthModule,
+    StorageModule,
 
     // ── Framework Utilities ─────────────────────────────────────────────────
     ThrottlerModule.forRoot([
