@@ -41,8 +41,21 @@ export class StorageService {
         },
       );
 
-      // Write the buffer directly into the upload stream — most reliable across environments
-      uploadStream.end(file.buffer);
+      // Ensure we have a true Node.js Buffer regardless of platform/multer storage mode
+      let buffer: Buffer;
+      const raw: any = file.buffer;
+      if (Buffer.isBuffer(raw)) {
+        buffer = raw;
+      } else if (raw instanceof ArrayBuffer) {
+        buffer = Buffer.from(raw);
+      } else if (raw && typeof raw === 'object') {
+        // Handle cases where multer delivers a serialized buffer-like object { type:'Buffer', data:[] }
+        buffer = Buffer.from(Object.values(raw as Record<string, number>));
+      } else {
+        return reject(new Error('File buffer is missing or in an unsupported format'));
+      }
+
+      uploadStream.end(buffer);
     });
   }
 }

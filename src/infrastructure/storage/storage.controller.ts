@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { memoryStorage } from 'multer';
 import { StorageService } from './storage.service';
 
 @ApiTags('Storage & Uploads')
@@ -32,7 +33,7 @@ export class StorageController {
     },
   })
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async uploadFile(
     @UploadedFile(
       new ParseFilePipe({
