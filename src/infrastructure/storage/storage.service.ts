@@ -44,7 +44,7 @@ export class StorageService {
 
       // Create a readable stream from the memory buffer and pipe it to Cloudinary
       const readable = new Readable();
-      readable.push(file.buffer);
+      readable.push(Buffer.isBuffer(file.buffer) ? file.buffer : Buffer.from(file.buffer));
       readable.push(null);
       readable.pipe(uploadStream);
     });
