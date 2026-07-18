@@ -25,8 +25,8 @@ export class UpdateProfileDto {
   lastName?: string;
 
   @ApiPropertyOptional({
-    description: 'URL to profile avatar image (or Cloudflare R2 key path)',
-    example: 'https://r2.vitafoam.com/avatars/65ab1234.jpg',
+    description: 'URL to profile avatar image',
+    example: 'https://res.cloudinary.com/vitaform/image/upload/v12345/avatars/65ab1234.jpg',
   })
   @IsOptional()
   @IsString()

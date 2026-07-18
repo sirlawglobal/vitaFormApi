@@ -96,7 +96,7 @@ export class CreateProductVariantDto {
 }
 
 export class CreateProductImageDto {
-  @ApiProperty({ example: 'https://r2.vitafoam.com/products/galaxy-1.jpg' })
+  @ApiProperty({ example: 'https://res.cloudinary.com/vitaform/image/upload/v12345/products/galaxy-1.jpg' })
   @IsUrl()
   url!: string;
 

@@ -37,6 +37,9 @@ export class CreateCategoryDto {
 
   @ApiPropertyOptional({
     description: 'MongoDB ObjectId of the parent category (if subcategory)',
+    type: String,
+    example: null,
+    nullable: true,
   })
   @IsOptional()
   @IsMongoId()
@@ -63,7 +66,7 @@ export class CreateCategoryDto {
 
   @ApiPropertyOptional({
     description: 'URL to category banner or thumbnail image',
-    example: 'https://r2.vitafoam.com/categories/ortho-banner.jpg',
+    example: 'https://res.cloudinary.com/vitaform/image/upload/v12345/categories/ortho-banner.jpg',
   })
   @IsOptional()
   @IsUrl()
