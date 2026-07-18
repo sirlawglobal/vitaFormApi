@@ -78,6 +78,7 @@
     * `CacheModule` & `CacheService` (ioredis wrapper marked `@Global()`, 15 typed methods including `SET NX EX` distributed locks).
     * `QueueModule` & `QueueService` (BullMQ facade marked `@Global()`, initializing 8 background queues with exponential backoff).
     * `MessagingModule` & `MessagingService` (amqplib ChannelModel, topic exchange + DLX setup, auto-reconnect).
+    * `StorageModule` & `StorageService` (Global Cloudinary file uploading pipeline with `memoryStorage` and streaming buffer coercion).
     * `OutboxModule` (`OutboxEvent` schema, `OutboxRepository`, `OutboxService`, and `OutboxWorker` polling every 5s with atomic batch claiming `status: PROCESSING` and 7-day TTL cleanup).
     * `HealthModule` (`/health`, `/health/live`, `/health/ready` probes for Kubernetes via `@nestjs/terminus`).
   * Application Root Bootstrap (`main.ts` & `app.module.ts`) with Helmet, strict CORS, `ThrottlerModule` rate limiting, `ValidationPipe` (`whitelist: true`), and Swagger UI (`/docs`).
@@ -124,7 +125,7 @@
 * **Objective**: Build comprehensive user profile management, multi-address handling, device registration, and account deletion.
 * **Key Components**:
   * **`UsersService` & `UsersRepository` (`src/modules/users/`)**:
-    * Profile management (`updateProfile`, `deleteAccount`, avatar upload URLs via Cloudflare R2).
+    * Profile management (`updateProfile`, `deleteAccount`, avatar upload URLs via `StorageModule` / Cloudinary).
     * Address management (`addresses[]` embedded array): create, update, delete, set default.
     * Device Management (`devices[]` embedded array): register/update Firebase Cloud Messaging (FCM) device tokens, track `lastSeen`.
     * Sleep Profile & Preferences (`preferences` object): save `sleepPosition` (`side | back | stomach`), `bodyWeightKg`, `mattressPreference`, and notification settings.

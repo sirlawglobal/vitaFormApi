@@ -37,7 +37,6 @@ export class CreateCategoryDto {
 
   @ApiPropertyOptional({
     description: 'MongoDB ObjectId of the parent category (if subcategory)',
-    example: '65ab1234cd5678ef90123456',
   })
   @IsOptional()
   @IsMongoId()
