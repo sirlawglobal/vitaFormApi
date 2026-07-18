@@ -9,10 +9,11 @@ import {
   FileTypeValidator,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { StorageService } from './storage.service';
 
 @ApiTags('Storage & Uploads')
+@ApiBearerAuth()
 @Controller('storage')
 export class StorageController {
   constructor(private readonly storageService: StorageService) {}
