@@ -1,7 +1,6 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
-import { Readable } from 'stream';
 import storageConfig from '../../config/storage.config';
 
 @Injectable()
@@ -42,11 +41,8 @@ export class StorageService {
         },
       );
 
-      // Create a readable stream from the memory buffer and pipe it to Cloudinary
-      const readable = new Readable();
-      readable.push(Buffer.isBuffer(file.buffer) ? file.buffer : Buffer.from(file.buffer));
-      readable.push(null);
-      readable.pipe(uploadStream);
+      // Write the buffer directly into the upload stream — most reliable across environments
+      uploadStream.end(file.buffer);
     });
   }
 }
