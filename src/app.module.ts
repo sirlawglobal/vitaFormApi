@@ -56,6 +56,8 @@ import { RecommendationModule } from './modules/recommendation/recommendation.mo
 import { CartModule } from './modules/cart/cart.module';
 import { CheckoutModule } from './modules/checkout/checkout.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { PaymentInfrastructureModule } from './infrastructure/payment/payment-infrastructure.module';
 import { SessionAuthGuard } from './common/guards/session-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
@@ -95,6 +97,7 @@ const ENV = process.env.APP_ENV ?? 'development';
     HealthModule,
     StorageModule,
     AiModule,
+    PaymentInfrastructureModule,
 
     // ── Framework Utilities ─────────────────────────────────────────────────
     ThrottlerModule.forRoot([
@@ -122,7 +125,8 @@ const ENV = process.env.APP_ENV ?? 'development';
     CartModule,
     CheckoutModule,
     OrdersModule,
-    // PaymentsModule,
+    PaymentsModule,
+    // WishlistModule,
     // WishlistModule,
     // ReviewsModule,
     RecommendationModule,

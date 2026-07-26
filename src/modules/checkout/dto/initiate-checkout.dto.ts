@@ -5,6 +5,7 @@ export enum PaymentMethodEnum {
   PAYSTACK = 'paystack',
   FLUTTERWAVE = 'flutterwave',
   MONIEPOINT = 'moniepoint',
+  OPAY = 'opay',
 }
 
 export class InitiateCheckoutDto {
