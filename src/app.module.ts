@@ -53,6 +53,8 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { SearchModule } from './modules/search/search.module';
 import { SleepQuizModule } from './modules/sleep-quiz/sleep-quiz.module';
 import { RecommendationModule } from './modules/recommendation/recommendation.module';
+import { CartModule } from './modules/cart/cart.module';
+import { CheckoutModule } from './modules/checkout/checkout.module';
 import { SessionAuthGuard } from './common/guards/session-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
@@ -116,8 +118,8 @@ const ENV = process.env.APP_ENV ?? 'development';
     CategoriesModule,
     ProductsModule,
     InventoryModule,
-    // CartModule,
-    // CheckoutModule,
+    CartModule,
+    CheckoutModule,
     // OrdersModule,
     // PaymentsModule,
     // WishlistModule,
