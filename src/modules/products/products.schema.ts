@@ -127,3 +127,9 @@ export const ProductSchema = SchemaFactory.createForClass(Product);
 // Compound indexes for common query paths
 ProductSchema.index({ categorySlug: 1, isActive: 1, isFeatured: 1 });
 ProductSchema.index({ 'variants.price': 1, 'variants.firmness': 1 });
+
+// Full-text search index for Search Engine (Phase 6)
+ProductSchema.index(
+  { name: 'text', description: 'text', tags: 'text', 'variants.sku': 'text' },
+  { weights: { name: 10, 'variants.sku': 8, tags: 5, description: 1 }, name: 'ProductTextIndex' },
+);

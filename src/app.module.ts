@@ -41,6 +41,8 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 import { SanitizePipe } from './common/pipes/sanitize.pipe';
 
+import { AiModule } from './infrastructure/ai/ai.module';
+
 // Domain Modules
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -48,6 +50,9 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { CategoriesModule } from './modules/categories/categories.module';
 import { ProductsModule } from './modules/products/products.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { SearchModule } from './modules/search/search.module';
+import { SleepQuizModule } from './modules/sleep-quiz/sleep-quiz.module';
+import { RecommendationModule } from './modules/recommendation/recommendation.module';
 import { SessionAuthGuard } from './common/guards/session-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
@@ -86,6 +91,7 @@ const ENV = process.env.APP_ENV ?? 'development';
     OutboxModule,
     HealthModule,
     StorageModule,
+    AiModule,
 
     // ── Framework Utilities ─────────────────────────────────────────────────
     ThrottlerModule.forRoot([
@@ -116,16 +122,15 @@ const ENV = process.env.APP_ENV ?? 'development';
     // PaymentsModule,
     // WishlistModule,
     // ReviewsModule,
-    // RecommendationModule,
-    // MattressFinderModule,
-    // SleepQuizModule,
+    RecommendationModule,
+    SleepQuizModule,
     // DealersModule,
     // WarrantyModule,
     // PromotionsModule,
     // CouponsModule,
     // SupportChatModule,
     // ArticlesModule,
-    // SearchModule,
+    SearchModule,
     // AnalyticsModule,
     // AdminModule,
     // SettingsModule,

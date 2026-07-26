@@ -36,10 +36,10 @@
 | **Phase 2** | Project Bootstrap & Core Infrastructure | Config, Pino, Database, Cache, BullMQ, RabbitMQ, Outbox, Health | ✅ **Completed** |
 | **Phase 3** | Authentication & Redis Session Management | `AuthModule`, `SessionService`, `OtpService`, `UsersModule` (Base) | ✅ **Completed** |
 | **Phase 4** | Users, Profiles & Device Management | `UsersModule`, Address Management, FCM Device Tokens, Account Deletion | ✅ **Completed** |
-| **Phase 5** | Products, Categories & Inventory | `ProductsModule`, `CategoriesModule`, `InventoryModule`, Variants, Trees | 🔄 **Next / Ready** |
-| **Phase 6** | Search Engine | `SearchModule`, Redis Autocomplete, Popular Queries, MongoDB Text Indexes | ⏳ **Pending** |
-| **Phase 7** | AI Recommendation & Mattress Finder | `RecommendationModule`, `MattressFinderModule`, AI Strategy Pattern | ⏳ **Pending** |
-| **Phase 8** | Shopping Cart & Checkout | `CartModule`, `CheckoutModule`, Redis Cart Engine, Coupon Application | ⏳ **Pending** |
+| **Phase 5** | Products, Categories & Inventory | `ProductsModule`, `CategoriesModule`, `InventoryModule`, Variants, Trees | ✅ **Completed** |
+| **Phase 6** | Search Engine | `SearchModule`, Redis Autocomplete, Popular Queries, MongoDB Text Indexes | ✅ **Completed** |
+| **Phase 7** | AI Recommendation & Mattress Finder | `RecommendationModule`, `SleepQuizModule`, Groq AI Strategy Pattern | ✅ **Completed** |
+| **Phase 8** | Shopping Cart & Checkout | `CartModule`, `CheckoutModule`, Redis Cart Engine, Coupon Application | 🔄 **Next / Ready** |
 | **Phase 9** | Orders & Outbox Events | `OrdersModule`, Order State Machine, Tracking, ACID Transactions | ⏳ **Pending** |
 | **Phase 10** | Payments (Strategy Pattern) | `PaymentsModule`, Paystack/Flutterwave/Moniepoint Webhooks, Refunds | ⏳ **Pending** |
 | **Phase 11** | Notifications & BullMQ Workers | `NotificationsModule`, FCM Push, SendGrid Email, Termii SMS Workers | ⏳ **Pending** |
