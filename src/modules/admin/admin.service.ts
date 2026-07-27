@@ -64,6 +64,10 @@ export class AdminService {
 
   // ── User Scaffolding & Role Management ────────────────────────────────────
 
+  async getUsers(page = 1, limit = 20, role?: string, search?: string, isActive?: boolean) {
+    return this.adminRepository.getUsers(page, limit, role, search, isActive);
+  }
+
   async createUserByAdmin(dto: CreateUserByAdminDto, adminUser: { userId: string; email: string }) {
     const existing = await this.userModel.findOne({
       $or: [{ email: dto.email.toLowerCase() }, { phone: dto.phone }],

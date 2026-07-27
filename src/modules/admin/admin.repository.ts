@@ -99,9 +99,35 @@ export class AdminRepository {
     return !!result;
   }
 
-  // ── User Metrics ───────────────────────────────────────────────────────────
+  // ── User Metrics & Listing ──────────────────────────────────────────────────
 
   async countTotalUsers(): Promise<number> {
     return this.userModel.countDocuments({ isActive: true }).exec();
+  }
+
+  async getUsers(page = 1, limit = 20, role?: string, search?: string, isActive?: boolean): Promise<{ data: User[]; total: number }> {
+    const filter: any = {};
+    if (role) {
+      filter.role = role;
+    }
+    if (isActive !== undefined) {
+      filter.isActive = isActive;
+    }
+    if (search) {
+      filter.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.userModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.userModel.countDocuments(filter),
+    ]);
+
+    return { data, total };
   }
 }

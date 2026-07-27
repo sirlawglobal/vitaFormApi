@@ -40,6 +40,30 @@ export class AdminController {
     return this.adminService.getDashboardOverview();
   }
 
+  @Get('users')
+  @ApiOperation({ summary: 'List all registered platform users with search, role, and pagination filters' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'role', required: false, type: String, description: 'Filter by role: customer, admin, support, dealer' })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search name, email, or phone' })
+  @ApiQuery({ name: 'isActive', required: false, type: Boolean })
+  @ApiResponse({ status: 200, description: 'Paginated user accounts list' })
+  async getUsers(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('role') role?: string,
+    @Query('search') search?: string,
+    @Query('isActive') isActive?: boolean,
+  ) {
+    return this.adminService.getUsers(
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 20,
+      role,
+      search,
+      isActive !== undefined ? String(isActive) === 'true' : undefined,
+    );
+  }
+
   @Post('users')
   @ApiOperation({ summary: 'Manually provision a staff or admin user account' })
   @ApiResponse({ status: 201, description: 'User account provisioned successfully' })
