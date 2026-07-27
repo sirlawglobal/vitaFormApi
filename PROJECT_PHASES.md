@@ -42,10 +42,10 @@
 | **Phase 8** | Shopping Cart & Checkout | `CartModule`, `CheckoutModule`, Redis Cart Engine, Coupon Application | ✅ **Completed** |
 | **Phase 9** | Orders & Outbox Events | `OrdersModule`, Order State Machine, Tracking, ACID Transactions | ✅ **Completed** |
 | **Phase 10** | Payments (Strategy Pattern) | `PaymentsModule`, Paystack/Flutterwave/Moniepoint Webhooks, Refunds | ✅ **Completed** |
-| **Phase 11** | Notifications & BullMQ Workers | `NotificationsModule`, FCM Push, SendGrid Email, Termii SMS Workers | 🔄 **Next / Ready** |
-| **Phase 12** | Support Chat & WebSocket Gateway | `SupportChatModule`, WebSocket Gateway, Real-Time Messaging | ⏳ **Pending** |
-| **Phase 13** | Warranty, Dealers, Articles & Sleep Quiz | `WarrantyModule`, `DealersModule` (2dsphere), `ArticlesModule`, `SleepQuizModule` | ⏳ **Pending** |
-| **Phase 14** | Admin Portal & Analytics | `AdminModule`, `AnalyticsModule`, Dashboard Metrics, Audit Logs, Settings | ⏳ **Pending** |
+| **Phase 11** | Notifications & BullMQ Workers | `NotificationsModule`, FCM Push, SendGrid Email, Termii SMS Workers | ⏸ **Deferred** |
+| **Phase 12** | Support Chat & WebSocket Gateway | `SupportChatModule`, WebSocket Gateway, Real-Time Messaging | ⏸ **Deferred** |
+| **Phase 13** | Warranty, Dealers & Articles | `WarrantyModule`, `DealersModule` (2dsphere), `ArticlesModule` | ⏸ **Deferred** |
+| **Phase 14** | Admin Portal & Analytics | `AdminModule`, `AnalyticsModule`, Dashboard Metrics, Audit Logs, Settings | ✅ **Completed** |
 | **Phase 15** | Testing: Unit, Integration & E2E | Jest Unit Tests, Integration Tests (Mock Redis/MongoDB), E2E Test Suite | ⏳ **Pending** |
 | **Phase 16** | Docker, CI/CD & Cloud Deployment | Dockerfile, GitHub Actions CI/CD, Kubernetes Manifests, Prometheus Metrics | ⏳ **Pending** |
 
@@ -265,7 +265,7 @@
 
 ---
 
-### ⏳ Phase 11: Notifications & BullMQ Workers (Pending)
+### ⏸ Phase 11: Notifications & BullMQ Workers (Deferred — to be implemented after Phase 13)
 * **Objective**: Build a multi-channel notification dispatch system with FCM Push, SendGrid Email, and Termii SMS BullMQ workers.
 * **Key Components** (`src/modules/notifications/`):
   * **`notifications` Collection Schema**: `userId`, `type` (`ORDER | PAYMENT | PROMO | SYSTEM`), `title`, `body`, `data`, `isRead`, `createdAt`, **90-day TTL index**.
@@ -284,7 +284,7 @@
 
 ---
 
-### ⏳ Phase 12: Support Chat & WebSocket Gateway (Pending)
+### ⏸ Phase 12: Support Chat & WebSocket Gateway (Deferred — to be implemented after Phase 13)
 * **Objective**: Real-time customer-to-agent support chat system with WebSocket gateway, typing indicators, and read receipts.
 * **Key Components** (`src/modules/support-chat/`):
   * **`SupportChatGateway`** (`@WebSocketGateway({ namespace: 'support' })`): Protected by `WsAuthGuard`.
@@ -302,8 +302,8 @@
 
 ---
 
-### ⏳ Phase 13: Warranty, Dealers, Articles & Sleep Quiz (Pending)
-* **Objective**: Build after-sales warranty management, geospatial dealer locator, content blog articles, and complete the sleep quiz backend (bridging to Phase 7 AI).
+### ⏸ Phase 13: Warranty, Dealers & Articles (Deferred — to be implemented after Phase 14)
+* **Objective**: Build after-sales warranty management, geospatial dealer locator, and content blog articles.
 
   #### Warranty (`src/modules/warranty/`)
   * `warranties` Collection: `serialNumber`, `productId`, `userId`, `orderId`, `dealerId`, `purchaseDate`, `warrantyPeriodYears`, `expiresAt`, `status` (`ACTIVE | EXPIRED | VOIDED | CLAIM_PENDING`), `claims[]` history.
@@ -324,7 +324,7 @@
 
 ---
 
-### ⏳ Phase 14: Admin Portal & Analytics (Pending)
+### ✅ Phase 14: Admin Portal & Analytics (Completed)
 * **Objective**: Build the admin dashboard, platform analytics, audit logging, system settings, and complete promotions/coupons management.
 
   #### Admin Module (`src/modules/admin/`)

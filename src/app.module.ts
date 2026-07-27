@@ -9,7 +9,6 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE, APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import * as Joi from 'joi';
 
 // Config
 import {
@@ -58,6 +57,9 @@ import { CheckoutModule } from './modules/checkout/checkout.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { PaymentInfrastructureModule } from './infrastructure/payment/payment-infrastructure.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { PromotionsModule } from './modules/promotions/promotions.module';
 import { SessionAuthGuard } from './common/guards/session-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
@@ -126,21 +128,12 @@ const ENV = process.env.APP_ENV ?? 'development';
     CheckoutModule,
     OrdersModule,
     PaymentsModule,
-    // WishlistModule,
-    // WishlistModule,
-    // ReviewsModule,
     RecommendationModule,
     SleepQuizModule,
-    // DealersModule,
-    // WarrantyModule,
-    // PromotionsModule,
-    // CouponsModule,
-    // SupportChatModule,
-    // ArticlesModule,
     SearchModule,
-    // AnalyticsModule,
-    // AdminModule,
-    // SettingsModule,
+    AdminModule,
+    AnalyticsModule,
+    PromotionsModule,
   ],
 
   providers: [
