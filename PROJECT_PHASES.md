@@ -42,7 +42,7 @@
 | **Phase 8** | Shopping Cart & Checkout | `CartModule`, `CheckoutModule`, Redis Cart Engine, Coupon Application | ✅ **Completed** |
 | **Phase 9** | Orders & Outbox Events | `OrdersModule`, Order State Machine, Tracking, ACID Transactions | ✅ **Completed** |
 | **Phase 10** | Payments (Strategy Pattern) | `PaymentsModule`, Paystack/Flutterwave/Moniepoint Webhooks, Refunds | ✅ **Completed** |
-| **Phase 11** | Notifications & BullMQ Workers | `NotificationsModule`, FCM Push, SendGrid Email, Termii SMS Workers | ⏸ **Deferred** |
+| **Phase 11** | Notifications & BullMQ Workers | `NotificationsModule`, FCM Push, SendGrid Email, Termii SMS Workers | ✅ **Completed** |
 | **Phase 12** | Support Chat & WebSocket Gateway | `SupportChatModule`, WebSocket Gateway, Real-Time Messaging | ⏸ **Deferred** |
 | **Phase 13** | Warranty, Dealers & Articles | `WarrantyModule`, `DealersModule` (2dsphere), `ArticlesModule` | ⏸ **Deferred** |
 | **Phase 14** | Admin Portal & Analytics | `AdminModule`, `AnalyticsModule`, Dashboard Metrics, Audit Logs, Settings | ✅ **Completed** |
@@ -265,7 +265,7 @@
 
 ---
 
-### ⏸ Phase 11: Notifications & BullMQ Workers (Deferred — to be implemented after Phase 13)
+### ✅ Phase 11: Notifications, Wishlist & Reviews (Completed)
 * **Objective**: Build a multi-channel notification dispatch system with FCM Push, SendGrid Email, and Termii SMS BullMQ workers.
 * **Key Components** (`src/modules/notifications/`):
   * **`notifications` Collection Schema**: `userId`, `type` (`ORDER | PAYMENT | PROMO | SYSTEM`), `title`, `body`, `data`, `isRead`, `createdAt`, **90-day TTL index**.

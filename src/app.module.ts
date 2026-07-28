@@ -60,6 +60,8 @@ import { PaymentInfrastructureModule } from './infrastructure/payment/payment-in
 import { AdminModule } from './modules/admin/admin.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
+import { WishlistModule } from './modules/wishlist/wishlist.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
 import { SessionAuthGuard } from './common/guards/session-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
@@ -134,6 +136,8 @@ const ENV = process.env.APP_ENV ?? 'development';
     AdminModule,
     AnalyticsModule,
     PromotionsModule,
+    WishlistModule,
+    ReviewsModule,
   ],
 
   providers: [

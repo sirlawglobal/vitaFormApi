@@ -124,4 +124,16 @@ export class OrdersRepository {
       .findByIdAndUpdate(id, { $set: setObj }, { new: true, session })
       .exec();
   }
+
+  async hasDeliveredProduct(userId: string, skus: string[]): Promise<boolean> {
+    if (!Types.ObjectId.isValid(userId) || !skus || skus.length === 0) return false;
+
+    const count = await this.orderModel.countDocuments({
+      userId: new Types.ObjectId(userId),
+      orderStatus: OrderStatus.DELIVERED,
+      'items.sku': { $in: skus },
+    }).limit(1).exec();
+
+    return count > 0;
+  }
 }
