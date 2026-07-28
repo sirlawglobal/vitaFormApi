@@ -62,6 +62,9 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { WarrantyModule } from './modules/warranty/warranty.module';
+import { DealersModule } from './modules/dealers/dealers.module';
+import { ArticlesModule } from './modules/articles/articles.module';
 import { SessionAuthGuard } from './common/guards/session-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
@@ -138,6 +141,9 @@ const ENV = process.env.APP_ENV ?? 'development';
     PromotionsModule,
     WishlistModule,
     ReviewsModule,
+    WarrantyModule,
+    DealersModule,
+    ArticlesModule,
   ],
 
   providers: [

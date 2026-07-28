@@ -8,6 +8,7 @@ export const QUEUE_NAMES = {
   SEARCH: 'search.queue',
   PAYMENT: 'payment.queue',
   INVENTORY: 'inventory.queue',
+  WARRANTY: 'warranty.queue',
 } as const;
 
 export type QueueName = (typeof QUEUE_NAMES)[keyof typeof QUEUE_NAMES];
@@ -49,4 +50,7 @@ export const JOB_NAMES = {
   RESERVE_STOCK: 'reserve-stock',
   RELEASE_STOCK: 'release-stock',
   LOW_STOCK_ALERT: 'low-stock-alert',
+
+  // Warranty
+  PROCESS_EXPIRING_WARRANTIES: 'process-expiring-warranties',
 } as const;
