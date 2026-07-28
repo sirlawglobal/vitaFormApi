@@ -3,7 +3,9 @@ import { WishlistService } from './wishlist.service';
 import { AddToWishlistDto } from './dto/add-to-wishlist.dto';
 import { SessionAuthGuard } from '../../common/guards/session-auth.guard';
 import { AuthenticatedRequest } from '../../common/types/session.types';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Wishlist')
 @Controller('api/v1/wishlist')
 @UseGuards(SessionAuthGuard)
 export class WishlistController {

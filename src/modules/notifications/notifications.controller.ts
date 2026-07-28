@@ -3,7 +3,9 @@ import { NotificationsService } from './notifications.service';
 import { QueryNotificationsDto } from './dto/query-notifications.dto';
 import { SessionAuthGuard } from '../../common/guards/session-auth.guard';
 import { AuthenticatedRequest } from '../../common/types/session.types';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+@ApiTags('In-App Notifications')
 @Controller('api/v1/notifications')
 @UseGuards(SessionAuthGuard)
 export class NotificationsController {
