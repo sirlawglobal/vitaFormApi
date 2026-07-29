@@ -44,7 +44,7 @@
 | **Phase 10** | Payments (Strategy Pattern) | `PaymentsModule`, Paystack/Flutterwave/Moniepoint Webhooks, Refunds | ✅ **Completed** |
 | **Phase 11** | Notifications & BullMQ Workers | `NotificationsModule`, FCM Push, SendGrid Email, Termii SMS Workers | ✅ **Completed** |
 | **Phase 12** | Support Chat & WebSocket Gateway | `SupportChatModule`, WebSocket Gateway, Real-Time Messaging | ⏸ **Deferred** |
-| **Phase 13** | Warranty, Dealers & Articles | `WarrantyModule`, `DealersModule` (2dsphere), `ArticlesModule` | ⏸ **Deferred** |
+| **Phase 13** | Warranty, Dealers & Articles | `WarrantyModule`, `DealersModule` (2dsphere), `ArticlesModule` | ✅ **Completed** |
 | **Phase 14** | Admin Portal & Analytics | `AdminModule`, `AnalyticsModule`, Dashboard Metrics, Audit Logs, Settings | ✅ **Completed** |
 | **Phase 15** | Testing: Unit, Integration & E2E | Jest Unit Tests, Integration Tests (Mock Redis/MongoDB), E2E Test Suite | ⏳ **Pending** |
 | **Phase 16** | Docker, CI/CD & Cloud Deployment | Dockerfile, GitHub Actions CI/CD, Kubernetes Manifests, Prometheus Metrics | ⏳ **Pending** |
