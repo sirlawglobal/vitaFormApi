@@ -8,9 +8,10 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedRequest } from '../../common/types/session.types';
 import { Public } from '../../common/decorators/public.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Articles (Blog)')
+@ApiBearerAuth()
 @Controller()
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
