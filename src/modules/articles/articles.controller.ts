@@ -11,7 +11,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Articles (Blog)')
-@Controller('api/v1')
+@Controller()
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
