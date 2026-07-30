@@ -7,6 +7,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedRequest } from '../../common/types/session.types';
+import { Public } from '../../common/decorators/public.decorator';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Articles (Blog)')
@@ -14,6 +15,7 @@ import { ApiTags } from '@nestjs/swagger';
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
+  @Public()
   @Get('articles')
   async getPublishedArticles(
     @Query('tag') tag?: string,
@@ -28,6 +30,7 @@ export class ArticlesController {
     };
   }
 
+  @Public()
   @Get('articles/:slug')
   async getArticleBySlug(@Param('slug') slug: string) {
     const article = await this.articlesService.getArticleBySlug(slug);

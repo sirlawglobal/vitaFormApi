@@ -43,7 +43,7 @@
 | **Phase 9** | Orders & Outbox Events | `OrdersModule`, Order State Machine, Tracking, ACID Transactions | ✅ **Completed** |
 | **Phase 10** | Payments (Strategy Pattern) | `PaymentsModule`, Paystack/Flutterwave/Moniepoint Webhooks, Refunds | ✅ **Completed** |
 | **Phase 11** | Notifications & BullMQ Workers | `NotificationsModule`, FCM Push, SendGrid Email, Termii SMS Workers | ✅ **Completed** |
-| **Phase 12** | Support Chat & WebSocket Gateway | `SupportChatModule`, WebSocket Gateway, Real-Time Messaging | ⏸ **Deferred** |
+| **Phase 12** | Support Chat & WebSocket Gateway | `SupportChatModule`, WebSocket Gateway, Real-Time Messaging | ✅ **Completed** |
 | **Phase 13** | Warranty, Dealers & Articles | `WarrantyModule`, `DealersModule` (2dsphere), `ArticlesModule` | ✅ **Completed** |
 | **Phase 14** | Admin Portal & Analytics | `AdminModule`, `AnalyticsModule`, Dashboard Metrics, Audit Logs, Settings | ✅ **Completed** |
 | **Phase 15** | Testing: Unit, Integration & E2E | Jest Unit Tests, Integration Tests (Mock Redis/MongoDB), E2E Test Suite | ⏳ **Pending** |
@@ -284,7 +284,7 @@
 
 ---
 
-### ⏸ Phase 12: Support Chat & WebSocket Gateway (Deferred — to be implemented after Phase 13)
+### ✅ Phase 12: Support Chat & WebSocket Gateway (Completed)
 * **Objective**: Real-time customer-to-agent support chat system with WebSocket gateway, typing indicators, and read receipts.
 * **Key Components** (`src/modules/support-chat/`):
   * **`SupportChatGateway`** (`@WebSocketGateway({ namespace: 'support' })`): Protected by `WsAuthGuard`.
