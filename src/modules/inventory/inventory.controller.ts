@@ -53,6 +53,14 @@ export class InventoryController {
 
   // ── Admin Endpoints ───────────────────────────────────────────────────────
 
+  @ApiOperation({ summary: '[Admin] Retrieve all inventory items' })
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @Get()
+  async getAllInventory() {
+    return this.inventoryService.getAllInventory();
+  }
+
   @ApiOperation({ summary: '[Admin] Retrieve all items currently at or below their reorder point' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)

@@ -23,6 +23,13 @@ export class InventoryRepository {
       .exec();
   }
 
+  async findAll(): Promise<Inventory[]> {
+    return this.inventoryModel
+      .find()
+      .populate('productId', 'name slug')
+      .exec();
+  }
+
   async findByProductId(
     productId: string | Types.ObjectId,
     session?: ClientSession,

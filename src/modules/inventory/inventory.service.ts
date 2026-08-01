@@ -46,6 +46,13 @@ export class InventoryService {
   }
 
   /**
+   * Get all inventory items.
+   */
+  async getAllInventory(): Promise<Inventory[]> {
+    return this.inventoryRepository.findAll();
+  }
+
+  /**
    * Admin or automated stock adjustment / intake.
    */
   async adjustStock(dto: AdjustStockDto, session?: ClientSession): Promise<Inventory> {
