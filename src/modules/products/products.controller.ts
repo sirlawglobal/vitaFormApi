@@ -60,6 +60,14 @@ export class ProductsController {
 
   // ── Admin Catalog Management Endpoints ────────────────────────────────────
 
+  @ApiOperation({ summary: '[Admin] Retrieve all products (including inactive)' })
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @Get('admin/all')
+  async getAllProductsAdmin(@Query() queryDto: QueryProductsDto) {
+    return this.productsService.queryProducts(queryDto, true);
+  }
+
   @ApiOperation({ summary: '[Admin] Create a new product with variants and specifications' })
   @ApiBearerAuth()
   @Roles(Role.ADMIN)

@@ -82,17 +82,20 @@ export class ProductsService {
   /**
    * Query products with filtering, search, sorting, pagination, and Redis caching.
    */
-  async queryProducts(dto: QueryProductsDto): Promise<{
+  async queryProducts(dto: QueryProductsDto, isAdmin: boolean = false): Promise<{
     items: Product[];
     total: number;
     page: number;
     limit: number;
   }> {
-    const cacheKey = `products:list:${JSON.stringify(dto)}`;
+    const cacheKey = `products:list:${isAdmin ? 'admin:' : ''}${JSON.stringify(dto)}`;
     return this.cacheService.getOrSet(
       cacheKey,
       async () => {
-        const filter: FilterQuery<Product> = { isActive: true };
+        const filter: FilterQuery<Product> = {};
+        if (!isAdmin) {
+          filter.isActive = true;
+        }
 
         if (dto.categorySlug) {
           filter.categorySlug = dto.categorySlug.toLowerCase().trim();
