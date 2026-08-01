@@ -63,7 +63,7 @@ export class ProductsService {
       categorySlug: category.slug,
     });
 
-    await this.cacheService.deleteByPattern('vitaform:products:list:*');
+    await this.cacheService.deleteByPattern('products:list:*');
 
     await this.outboxService.saveEvent(
       {
@@ -88,7 +88,7 @@ export class ProductsService {
     page: number;
     limit: number;
   }> {
-    const cacheKey = `vitaform:products:list:${JSON.stringify(dto)}`;
+    const cacheKey = `products:list:${JSON.stringify(dto)}`;
     return this.cacheService.getOrSet(
       cacheKey,
       async () => {
@@ -164,7 +164,7 @@ export class ProductsService {
    */
   async getBySlug(slug: string): Promise<Product> {
     const cleanSlug = slug.toLowerCase().trim();
-    const cacheKey = `vitaform:product:slug:${cleanSlug}`;
+    const cacheKey = `product:slug:${cleanSlug}`;
 
     return this.cacheService.getOrSet(
       cacheKey,
@@ -186,7 +186,7 @@ export class ProductsService {
    * Get product detail by ID (cached for 1 hour).
    */
   async getById(id: string): Promise<Product> {
-    const cacheKey = `vitaform:product:id:${id}`;
+    const cacheKey = `product:id:${id}`;
 
     return this.cacheService.getOrSet(
       cacheKey,
@@ -271,10 +271,10 @@ export class ProductsService {
     }
 
     await Promise.all([
-      this.cacheService.del(`vitaform:product:id:${id}`),
-      this.cacheService.del(`vitaform:product:slug:${existing.slug}`),
+      this.cacheService.del(`product:id:${id}`),
+      this.cacheService.del(`product:slug:${existing.slug}`),
       ifChangedSlug(updated.slug, existing.slug, this.cacheService),
-      this.cacheService.deleteByPattern('vitaform:products:list:*'),
+      this.cacheService.deleteByPattern('products:list:*'),
     ]);
 
     await this.outboxService.saveEvent(
@@ -309,9 +309,9 @@ export class ProductsService {
     await this.productsRepository.deleteById(id);
 
     await Promise.all([
-      this.cacheService.del(`vitaform:product:id:${id}`),
-      this.cacheService.del(`vitaform:product:slug:${existing.slug}`),
-      this.cacheService.deleteByPattern('vitaform:products:list:*'),
+      this.cacheService.del(`product:id:${id}`),
+      this.cacheService.del(`product:slug:${existing.slug}`),
+      this.cacheService.deleteByPattern('products:list:*'),
     ]);
 
     await this.outboxService.saveEvent(
@@ -335,6 +335,6 @@ async function ifChangedSlug(
   cacheService: CacheService,
 ): Promise<void> {
   if (newSlug !== oldSlug) {
-    await cacheService.del(`vitaform:product:slug:${newSlug}`);
+    await cacheService.del(`product:slug:${newSlug}`);
   }
 }

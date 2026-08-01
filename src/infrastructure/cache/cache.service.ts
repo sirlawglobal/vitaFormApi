@@ -181,7 +181,14 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
   /** Delete all keys matching a pattern (use cautiously in production) */
   async deleteByPattern(pattern: string): Promise<void> {
-    const keys = await this.client.keys(pattern);
-    if (keys.length > 0) await this.client.del(...keys);
+    const prefix = this.client.options.keyPrefix || '';
+    const searchPattern = `${prefix}${pattern}`;
+    const keys = await this.client.keys(searchPattern);
+    if (keys.length > 0) {
+      // ioredis keys() might or might not strip the prefix depending on version.
+      // To be safe, we strip it manually if it exists so `del()` can re-apply it safely.
+      const rawKeys = keys.map(k => k.startsWith(prefix) ? k.slice(prefix.length) : k);
+      await this.client.del(...rawKeys);
+    }
   }
 }
