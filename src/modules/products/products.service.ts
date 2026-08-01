@@ -239,6 +239,13 @@ export class ProductsService {
   }
 
   /**
+   * Count products belonging to a specific category.
+   */
+  async countByCategory(categoryId: string): Promise<number> {
+    return this.productsRepository.countByCategory(categoryId);
+  }
+
+  /**
    * Update product details or variants, invalidate caches, and emit ProductUpdated event.
    */
   async updateProduct(

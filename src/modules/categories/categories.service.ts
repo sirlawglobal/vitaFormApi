@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { CategoriesRepository } from './categories.repository';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 import { Category } from './categories.schema';
 import { CacheService } from '../../infrastructure/cache/cache.service';
+import { ProductsService } from '../products/products.service';
 import {
   NotFoundException,
   ConflictException,
@@ -18,6 +19,8 @@ export class CategoriesService {
   constructor(
     private readonly categoriesRepository: CategoriesRepository,
     private readonly cacheService: CacheService,
+    @Inject(forwardRef(() => ProductsService))
+    private readonly productsService: ProductsService,
   ) {}
 
   /**
@@ -186,6 +189,14 @@ export class CategoriesService {
       throw new ConflictException(
         ERROR_CODES.CATEGORY_NOT_EMPTY,
         `Cannot delete category '${category.name}' because it contains ${childCount} subcategory(ies). Delete or move them first.`,
+      );
+    }
+
+    const productsCount = await this.productsService.countByCategory(id);
+    if (productsCount > 0) {
+      throw new ConflictException(
+        ERROR_CODES.CATEGORY_NOT_EMPTY,
+        `Cannot delete category '${category.name}' because it contains ${productsCount} product(s). Delete or move the products to another category first.`,
       );
     }
 

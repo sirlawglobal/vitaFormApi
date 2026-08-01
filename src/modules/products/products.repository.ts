@@ -81,6 +81,11 @@ export class ProductsRepository {
       .exec();
   }
 
+  async countByCategory(categoryId: string | Types.ObjectId): Promise<number> {
+    if (!Types.ObjectId.isValid(categoryId)) return 0;
+    return this.productModel.countDocuments({ categoryId: new Types.ObjectId(categoryId) }).exec();
+  }
+
   async deleteById(id: string): Promise<boolean> {
     if (!Types.ObjectId.isValid(id)) return false;
     const result = await this.productModel.deleteOne({ _id: id }).exec();
