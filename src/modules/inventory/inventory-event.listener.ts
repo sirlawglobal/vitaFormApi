@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { InventoryRepository } from './inventory.repository';
-import { EVENT_NAMES } from '../../common/constants/event-names.constants';
+import { DOMAIN_EVENTS } from '../../common/constants/event-names.constants';
 
 @Injectable()
 export class InventoryEventListener {
@@ -9,7 +9,7 @@ export class InventoryEventListener {
 
   constructor(private readonly inventoryRepository: InventoryRepository) {}
 
-  @OnEvent(EVENT_NAMES.PRODUCT_DELETED)
+  @OnEvent(DOMAIN_EVENTS.PRODUCT_DELETED)
   async handleProductDeleted(payload: any) {
     this.logger.debug(`Received ProductDeleted event. Deleting associated inventory...`);
     try {
