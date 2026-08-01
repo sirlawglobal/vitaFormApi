@@ -10,10 +10,11 @@ export class InventoryEventListener {
   constructor(private readonly inventoryRepository: InventoryRepository) {}
 
   @OnEvent(DOMAIN_EVENTS.PRODUCT_DELETED)
-  async handleProductDeleted(payload: any) {
+  async handleProductDeleted(eventData: any) {
     this.logger.debug(`Received ProductDeleted event. Deleting associated inventory...`);
     try {
-      const productId = payload.id || payload._id;
+      // Outbox worker wraps the original payload in an event envelope
+      const productId = eventData.aggregateId || eventData.payload?.id || eventData.payload?._id;
       if (productId) {
         const deleted = await this.inventoryRepository.deleteByProductId(productId);
         if (deleted) {
