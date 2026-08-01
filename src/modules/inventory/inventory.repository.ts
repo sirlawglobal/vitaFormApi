@@ -65,4 +65,12 @@ export class InventoryRepository {
       )
       .exec();
   }
+
+  async deleteByProductId(productId: string | Types.ObjectId): Promise<boolean> {
+    if (!Types.ObjectId.isValid(productId)) return false;
+    const result = await this.inventoryModel
+      .deleteMany({ productId: new Types.ObjectId(productId) })
+      .exec();
+    return result.deletedCount > 0;
+  }
 }

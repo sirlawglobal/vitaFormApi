@@ -4,6 +4,7 @@ import { Inventory, InventorySchema } from './inventory.schema';
 import { InventoryRepository } from './inventory.repository';
 import { InventoryService } from './inventory.service';
 import { InventoryController } from './inventory.controller';
+import { InventoryEventListener } from './inventory-event.listener';
 import { ProductsModule } from '../products/products.module';
 
 @Module({
@@ -12,7 +13,7 @@ import { ProductsModule } from '../products/products.module';
     ProductsModule,
   ],
   controllers: [InventoryController],
-  providers: [InventoryRepository, InventoryService],
+  providers: [InventoryRepository, InventoryService, InventoryEventListener],
   exports: [InventoryRepository, InventoryService, MongooseModule],
 })
 export class InventoryModule {}
