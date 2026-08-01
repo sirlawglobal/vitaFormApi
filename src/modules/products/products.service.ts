@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ClientSession, FilterQuery, Types } from 'mongoose';
 import { ProductsRepository } from './products.repository';
 import { CategoriesService } from '../categories/categories.service';
@@ -25,6 +25,7 @@ export class ProductsService {
 
   constructor(
     private readonly productsRepository: ProductsRepository,
+    @Inject(forwardRef(() => CategoriesService))
     private readonly categoriesService: CategoriesService,
     private readonly cacheService: CacheService,
     private readonly outboxService: OutboxService,
