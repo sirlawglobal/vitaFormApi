@@ -82,6 +82,11 @@ export class AdminRepository {
     const filter: any = {};
     if (activeOnly) {
       filter.isActive = true;
+      const now = new Date();
+      filter.$and = [
+        { $or: [{ scheduledStartDate: { $exists: false } }, { scheduledStartDate: null }, { scheduledStartDate: { $lte: now } }] },
+        { $or: [{ scheduledEndDate: { $exists: false } }, { scheduledEndDate: null }, { scheduledEndDate: { $gte: now } }] }
+      ];
     }
     return this.bannerModel.find(filter).sort({ displayOrder: 1, createdAt: -1 }).exec();
   }

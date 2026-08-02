@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsString,
   MinLength,
+  IsDateString,
 } from 'class-validator';
 import { Role } from '../../../common/enums/role.enum';
 
@@ -114,6 +115,16 @@ export class CreateBannerDto {
   @IsOptional()
   @IsString()
   buttonText?: string;
+
+  @ApiPropertyOptional({ example: '2026-08-01T00:00:00.000Z', description: 'When the banner should start showing' })
+  @IsOptional()
+  @IsDateString()
+  scheduledStartDate?: string;
+
+  @ApiPropertyOptional({ example: '2026-08-31T23:59:59.000Z', description: 'When the banner should stop showing' })
+  @IsOptional()
+  @IsDateString()
+  scheduledEndDate?: string;
 }
 
 export class UpdateBannerDto {
@@ -151,6 +162,16 @@ export class UpdateBannerDto {
   @IsOptional()
   @IsString()
   buttonText?: string;
+
+  @ApiPropertyOptional({ example: '2026-08-01T00:00:00.000Z', description: 'When the banner should start showing' })
+  @IsOptional()
+  @IsDateString()
+  scheduledStartDate?: string;
+
+  @ApiPropertyOptional({ example: '2026-08-31T23:59:59.000Z', description: 'When the banner should stop showing' })
+  @IsOptional()
+  @IsDateString()
+  scheduledEndDate?: string;
 }
 
 export class ResetUserPasswordDto {

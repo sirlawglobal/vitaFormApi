@@ -25,6 +25,12 @@ export class Banner {
 
   @Prop({ trim: true })
   buttonText?: string;
+
+  @Prop()
+  scheduledStartDate?: Date;
+
+  @Prop()
+  scheduledEndDate?: Date;
 }
 
 export const BannerSchema = SchemaFactory.createForClass(Banner);
