@@ -15,6 +15,7 @@ export class GeoJSONPoint {
   collection: 'dealers',
   timestamps: true,
 })
+
 export class Dealer extends Document {
   @Prop({ required: true, trim: true, index: true })
   name!: string;
