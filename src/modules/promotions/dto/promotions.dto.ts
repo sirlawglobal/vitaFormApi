@@ -138,6 +138,11 @@ export class UpdateCouponDto {
   @IsBoolean()
   isActive?: boolean;
 
+  @ApiPropertyOptional({ example: '2026-07-27T00:00:00.000Z' })
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
   @ApiPropertyOptional({ example: '2026-12-31T23:59:59.000Z' })
   @IsOptional()
   @IsDateString()

@@ -61,6 +61,7 @@ export class PromotionsRepository {
   async updateCoupon(id: string, dto: UpdateCouponDto): Promise<CouponDocument | null> {
     const updateData: any = { ...dto };
     if (dto.code) updateData.code = dto.code.toUpperCase();
+    if (dto.startDate) updateData.startDate = new Date(dto.startDate);
     if (dto.expiresAt) updateData.expiresAt = new Date(dto.expiresAt);
 
     return this.couponModel.findByIdAndUpdate(id, { $set: updateData }, { new: true }).exec();
