@@ -4,6 +4,8 @@ import {
   Get,
   Param,
   Post,
+  Patch,
+  Delete,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -54,5 +56,54 @@ export class SleepQuizController {
   @ApiResponse({ status: 200, description: 'Latest user recommendation' })
   async getMyLatest(@Req() req: AuthenticatedRequest) {
     return this.sleepQuizService.getLatestResultForUser(req.session.userId);
+  }
+
+  // --- Admin Routes: Questions ---
+  
+  @Post('admin/questions')
+  @UseGuards(SessionAuthGuard)
+  // Assume RolesGuard is handled globally or add here
+  async createQuestion(@Body() dto: any) {
+    return this.sleepQuizService.createQuestion(dto);
+  }
+
+  @Patch('admin/questions/:id')
+  @UseGuards(SessionAuthGuard)
+  async updateQuestion(@Param('id') id: string, @Body() dto: any) {
+    return this.sleepQuizService.updateQuestion(id, dto);
+  }
+
+  @Delete('admin/questions/:id')
+  @UseGuards(SessionAuthGuard)
+  async deleteQuestion(@Param('id') id: string) {
+    await this.sleepQuizService.deleteQuestion(id);
+    return { message: 'Question deleted successfully' };
+  }
+
+  // --- Admin Routes: Rules ---
+  
+  @Get('admin/rules')
+  @UseGuards(SessionAuthGuard)
+  async getRules() {
+    return this.sleepQuizService.getRules();
+  }
+
+  @Post('admin/rules')
+  @UseGuards(SessionAuthGuard)
+  async createRule(@Body() dto: any) {
+    return this.sleepQuizService.createRule(dto);
+  }
+
+  @Patch('admin/rules/:id')
+  @UseGuards(SessionAuthGuard)
+  async updateRule(@Param('id') id: string, @Body() dto: any) {
+    return this.sleepQuizService.updateRule(id, dto);
+  }
+
+  @Delete('admin/rules/:id')
+  @UseGuards(SessionAuthGuard)
+  async deleteRule(@Param('id') id: string) {
+    await this.sleepQuizService.deleteRule(id);
+    return { message: 'Rule deleted successfully' };
   }
 }

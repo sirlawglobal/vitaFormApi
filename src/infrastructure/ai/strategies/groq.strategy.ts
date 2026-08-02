@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import OpenAI from 'openai';
+import { SleepQuizRule } from '../../../modules/sleep-quiz/sleep-quiz-rule.schema';
 import {
   AiRecommendationResult,
   AiStrategy,
@@ -14,7 +17,11 @@ export class GroqStrategy implements AiStrategy {
   private readonly client: OpenAI;
   private readonly model: string;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    @InjectModel(SleepQuizRule.name)
+    private readonly ruleModel: Model<SleepQuizRule>,
+  ) {
     const apiKey = this.config.get<string>('ai.groq.apiKey', '');
     const baseUrl = this.config.get<string>(
       'ai.groq.baseUrl',
@@ -32,6 +39,11 @@ export class GroqStrategy implements AiStrategy {
     answers: SleepQuizAnswers,
     catalog: CatalogProductSummary[],
   ): Promise<AiRecommendationResult> {
+    const rules = await this.ruleModel.find({ isActive: true }).sort({ weight: -1 }).exec();
+    const rulesText = rules.length > 0 
+      ? `\n\nSTRICT BUSINESS RULES TO FOLLOW (HIGHEST PRIORITY):\n` + rules.map(r => `- Rule (Priority ${r.weight}): If [${r.condition}], you MUST prioritize recommending SKU: ${r.recommendedSku}`).join('\n')
+      : '';
+
     const systemPrompt = `You are an expert orthopedic mattress recommender for Vitafoam.
 Your task is to analyze user sleep quiz answers and match them with the most suitable products from our active catalog.
 You MUST respond with valid JSON ONLY matching this structure:
@@ -43,7 +55,7 @@ You MUST respond with valid JSON ONLY matching this structure:
   "protectorSkus": ["SKU_PROT_1"],
   "recommendedFirmness": "soft | medium | firm | extra-firm",
   "rationale": "Clear 2-sentence orthopedic reasoning."
-}`;
+}${rulesText}`;
 
     const userPrompt = `
 User Profile:
