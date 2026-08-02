@@ -8,9 +8,10 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PromotionsService } from './promotions.service';
 import { CreateCouponDto, UpdateCouponDto, ValidateCouponDto } from './dto/promotions.dto';
 import { Public } from '../../common/decorators/public.decorator';
@@ -56,10 +57,24 @@ export class PromotionsController {
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Get()
-  @ApiOperation({ summary: 'List all coupons with usage statistics' })
-  @ApiResponse({ status: 200, description: 'All coupons list' })
-  async getAllCoupons() {
-    return this.promotionsService.getAllCoupons();
+  @ApiOperation({ summary: 'List all coupons with usage statistics, pagination, and filters' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'isActive', required: false, type: Boolean })
+  @ApiResponse({ status: 200, description: 'All coupons list paginated' })
+  async getAllCoupons(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('isActive') isActive?: boolean,
+  ) {
+    return this.promotionsService.getAllCoupons(
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 20,
+      search,
+      isActive !== undefined ? String(isActive) === 'true' : undefined,
+    );
   }
 
   @ApiBearerAuth()

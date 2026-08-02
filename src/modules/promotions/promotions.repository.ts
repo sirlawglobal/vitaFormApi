@@ -35,8 +35,23 @@ export class PromotionsRepository {
       .exec();
   }
 
-  async findAllCoupons(): Promise<CouponDocument[]> {
-    return this.couponModel.find().sort({ createdAt: -1 }).exec();
+  async findAllCoupons(page = 1, limit = 20, search?: string, isActive?: boolean): Promise<{ data: CouponDocument[]; total: number }> {
+    const filter: any = {};
+    if (isActive !== undefined) {
+      filter.isActive = isActive;
+    }
+    if (search) {
+      filter.$or = [
+        { code: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
+    }
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.couponModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.couponModel.countDocuments(filter),
+    ]);
+    return { data, total };
   }
 
   async findById(id: string): Promise<CouponDocument | null> {

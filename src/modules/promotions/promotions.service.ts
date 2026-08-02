@@ -105,8 +105,8 @@ export class PromotionsService {
     return this.promotionsRepository.findActiveCoupons();
   }
 
-  async getAllCoupons() {
-    return this.promotionsRepository.findAllCoupons();
+  async getAllCoupons(page = 1, limit = 20, search?: string, isActive?: boolean) {
+    return this.promotionsRepository.findAllCoupons(page, limit, search, isActive);
   }
 
   async getCouponById(id: string) {
