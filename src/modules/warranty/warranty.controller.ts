@@ -63,6 +63,18 @@ export class WarrantyController {
 
   // --- Admin Routes ---
 
+  @Get('admin/warranty/claims')
+  @UseGuards(SessionAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async getAllClaims(@Query() query: QueryWarrantyDto) {
+    const { data, total } = await this.warrantyService.getAllClaims(query.page || 1, query.limit || 20);
+    return {
+      message: 'Warranty claims retrieved successfully',
+      data,
+      meta: { page: query.page || 1, limit: query.limit || 20, total },
+    };
+  }
+
   @Patch('admin/warranty/:warrantyId/claims/:claimId')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

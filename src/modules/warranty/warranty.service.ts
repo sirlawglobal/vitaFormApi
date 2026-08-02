@@ -93,6 +93,12 @@ export class WarrantyService {
 
   // --- Admin Methods ---
 
+  async getAllClaims(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await this.warrantyRepository.getAllClaims(skip, limit);
+    return { data, total };
+  }
+
   async moderateClaim(warrantyId: string, claimId: string, status: ClaimStatus, resolution?: string) {
     const updated = await this.warrantyRepository.updateClaimStatus(warrantyId, claimId, status, resolution);
     if (!updated) {

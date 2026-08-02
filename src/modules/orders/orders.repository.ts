@@ -69,7 +69,7 @@ export class OrdersRepository {
 
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
-      this.orderModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.orderModel.find(filter).populate('userId', 'firstName lastName email').sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
       this.orderModel.countDocuments(filter).exec(),
     ]);
 

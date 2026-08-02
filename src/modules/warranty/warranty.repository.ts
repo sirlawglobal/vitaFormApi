@@ -73,6 +73,23 @@ export class WarrantyRepository {
       .exec();
   }
 
+  async getAllClaims(skip = 0, limit = 20): Promise<[Warranty[], number]> {
+    // Return warranties that have at least one claim, sorted by latest claim.
+    const filter = { 'claims.0': { $exists: true } };
+    const [items, total] = await Promise.all([
+      this.warrantyModel
+        .find(filter)
+        .populate('userId', 'firstName lastName email')
+        .populate('productId', 'name sku')
+        .sort({ 'claims.createdAt': -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.warrantyModel.countDocuments(filter).exec(),
+    ]);
+    return [items, total];
+  }
+
   async findExpiringWithin(days: number): Promise<Warranty[]> {
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + days);
