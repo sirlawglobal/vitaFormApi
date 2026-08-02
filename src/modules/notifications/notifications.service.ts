@@ -53,6 +53,51 @@ export class NotificationsService {
     return notification;
   }
 
+  async broadcast(
+    type: NotificationType,
+    title: string,
+    body: string,
+    data?: Record<string, any>,
+  ): Promise<{ sentCount: number }> {
+    const eligibleUsers = await this.usersRepository.findPushEligibleUsers();
+    if (eligibleUsers.length === 0) {
+      return { sentCount: 0 };
+    }
+
+    const notificationDocs = eligibleUsers.map((user) => ({
+      userId: user._id.toString(),
+      type,
+      title,
+      body,
+      data,
+    }));
+
+    // 1. Bulk insert in-app notifications
+    await this.notificationsRepository.insertMany(notificationDocs);
+
+    // 2. Queue push notifications
+    let pushSentCount = 0;
+    for (const user of eligibleUsers) {
+      const fcmTokens = user.devices
+        ?.map((d) => d.fcmToken)
+        .filter((token): token is string => !!token);
+
+      if (fcmTokens && fcmTokens.length > 0) {
+        await this.queueService.add(QUEUE_NAMES.NOTIFICATION, JOB_NAMES.SEND_PUSH, {
+          userId: user._id.toString(),
+          fcmToken: fcmTokens,
+          title,
+          body,
+          data,
+        });
+        pushSentCount++;
+      }
+    }
+
+    this.logger.log(`Broadcasted '${title}' to ${eligibleUsers.length} users (${pushSentCount} push targets)`);
+    return { sentCount: eligibleUsers.length };
+  }
+
   async listForUser(userId: string, page: number, limit: number): Promise<{ data: Notification[]; total: number }> {
     const skip = (page - 1) * limit;
     const [data, total] = await this.notificationsRepository.findByUser(userId, skip, limit);

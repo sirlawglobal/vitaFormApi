@@ -171,4 +171,18 @@ export class UsersRepository {
       )
       .exec();
   }
+
+  /**
+   * Fetches all active users who have not explicitly disabled push notifications.
+   * Useful for broadcasting notifications.
+   */
+  async findPushEligibleUsers(): Promise<User[]> {
+    return this.userModel
+      .find({
+        isActive: true,
+        'preferences.pushNotifications': { $ne: false },
+      })
+      .select('_id devices') // Only fetch what we need for sending pushes
+      .exec();
+  }
 }

@@ -15,6 +15,11 @@ export class NotificationsRepository {
     return notification.save();
   }
 
+  async insertMany(data: Partial<Notification>[]): Promise<void> {
+    if (!data || data.length === 0) return;
+    await this.notificationModel.insertMany(data);
+  }
+
   async findByUser(userId: string, skip: number, limit: number): Promise<[Notification[], number]> {
     const filter = { userId: new Types.ObjectId(userId) };
     const [items, total] = await Promise.all([

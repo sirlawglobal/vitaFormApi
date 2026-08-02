@@ -1,9 +1,13 @@
-import { Controller, Get, Patch, Delete, Param, Query, UseGuards, Req, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards, Req, NotFoundException } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { QueryNotificationsDto } from './dto/query-notifications.dto';
+import { BroadcastNotificationDto } from './dto/broadcast-notification.dto';
 import { SessionAuthGuard } from '../../common/guards/session-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedRequest } from '../../common/types/session.types';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('In-App Notifications')
 @Controller('api/v1/notifications')
@@ -63,6 +67,21 @@ export class NotificationsController {
     }
     return {
       message: 'Notification deleted successfully',
+    };
+  }
+
+  @Post('admin/broadcast')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Admin broadcast push notification to all eligible users' })
+  @ApiResponse({ status: 201, description: 'Broadcast sent successfully' })
+  async broadcast(@Body() dto: BroadcastNotificationDto) {
+    const type = dto.type || ('PROMO' as any);
+    const result = await this.notificationsService.broadcast(type, dto.title, dto.body);
+    return {
+      message: 'Broadcast notification initiated',
+      data: result,
     };
   }
 }
