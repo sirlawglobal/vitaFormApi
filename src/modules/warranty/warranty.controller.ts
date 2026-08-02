@@ -12,7 +12,7 @@ import { AuthenticatedRequest } from '../../common/types/session.types';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Warranty')
-@Controller('api/v1')
+@Controller()
 export class WarrantyController {
   constructor(private readonly warrantyService: WarrantyService) {}
 

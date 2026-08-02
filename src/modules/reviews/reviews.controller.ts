@@ -11,7 +11,7 @@ import { AuthenticatedRequest } from '../../common/types/session.types';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Reviews')
-@Controller('api/v1')
+@Controller()
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
