@@ -222,8 +222,8 @@ export class AdminService {
     return banner;
   }
 
-  async getBanners(activeOnly = false) {
-    return this.adminRepository.getBanners(activeOnly);
+  async getBanners(page = 1, limit = 20, search?: string, bannerType?: string, isActive?: boolean) {
+    return this.adminRepository.getBanners(page, limit, search, bannerType, isActive);
   }
 
   async getBannerById(id: string) {

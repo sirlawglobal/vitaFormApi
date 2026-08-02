@@ -78,17 +78,39 @@ export class AdminRepository {
     return this.bannerModel.create(dto);
   }
 
-  async getBanners(activeOnly = false): Promise<BannerDocument[]> {
+  async getBanners(page = 1, limit = 20, search?: string, bannerType?: string, isActive?: boolean): Promise<{ data: BannerDocument[]; total: number }> {
     const filter: any = {};
-    if (activeOnly) {
-      filter.isActive = true;
-      const now = new Date();
-      filter.$and = [
-        { $or: [{ scheduledStartDate: { $exists: false } }, { scheduledStartDate: null }, { scheduledStartDate: { $lte: now } }] },
-        { $or: [{ scheduledEndDate: { $exists: false } }, { scheduledEndDate: null }, { scheduledEndDate: { $gte: now } }] }
+    
+    if (isActive !== undefined) {
+      filter.isActive = isActive;
+      
+      if (isActive === true) {
+        const now = new Date();
+        filter.$and = [
+          { $or: [{ scheduledStartDate: { $exists: false } }, { scheduledStartDate: null }, { scheduledStartDate: { $lte: now } }] },
+          { $or: [{ scheduledEndDate: { $exists: false } }, { scheduledEndDate: null }, { scheduledEndDate: { $gte: now } }] }
+        ];
+      }
+    }
+
+    if (bannerType) {
+      filter.bannerType = bannerType;
+    }
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { subtitle: { $regex: search, $options: 'i' } },
       ];
     }
-    return this.bannerModel.find(filter).sort({ displayOrder: 1, createdAt: -1 }).exec();
+
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.bannerModel.find(filter).sort({ displayOrder: 1, createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.bannerModel.countDocuments(filter)
+    ]);
+    
+    return { data, total };
   }
 
   async getBannerById(id: string): Promise<BannerDocument | null> {

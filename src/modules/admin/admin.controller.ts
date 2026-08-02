@@ -171,10 +171,27 @@ export class AdminController {
   }
 
   @Get('banners')
-  @ApiOperation({ summary: 'List all promotional banners' })
-  @ApiResponse({ status: 200, description: 'List of banners' })
-  async getBanners() {
-    return this.adminService.getBanners(false);
+  @ApiOperation({ summary: 'List all promotional banners with search, type, and pagination filters' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search banner title or subtitle' })
+  @ApiQuery({ name: 'bannerType', required: false, type: String, description: 'Filter by type: custom, image_only' })
+  @ApiQuery({ name: 'isActive', required: false, type: Boolean })
+  @ApiResponse({ status: 200, description: 'Paginated banners list' })
+  async getBanners(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('bannerType') bannerType?: string,
+    @Query('isActive') isActive?: boolean,
+  ) {
+    return this.adminService.getBanners(
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 20,
+      search,
+      bannerType,
+      isActive !== undefined ? String(isActive) === 'true' : undefined,
+    );
   }
 
   @Get('banners/:id')
