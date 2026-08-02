@@ -5,8 +5,11 @@ export type BannerDocument = Banner & Document;
 
 @Schema({ timestamps: true, collection: 'banners' })
 export class Banner {
-  @Prop({ required: true, trim: true })
-  title!: string;
+  @Prop({ trim: true })
+  title?: string;
+
+  @Prop({ enum: ['custom', 'image_only'], default: 'custom' })
+  bannerType!: 'custom' | 'image_only';
 
   @Prop({ required: true, trim: true })
   imageUrl!: string;

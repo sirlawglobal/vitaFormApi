@@ -81,10 +81,15 @@ export class UpdateSettingsDto {
 }
 
 export class CreateBannerDto {
-  @ApiProperty({ example: 'Mega Black Friday Sale', description: 'Banner title' })
+  @ApiPropertyOptional({ example: 'custom', enum: ['custom', 'image_only'] })
+  @IsOptional()
+  @IsEnum(['custom', 'image_only'])
+  bannerType?: 'custom' | 'image_only';
+
+  @ApiPropertyOptional({ example: 'New Year Comfort Promo', description: 'Banner headline text' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  title!: string;
+  title?: string;
 
   @ApiProperty({ example: 'https://res.cloudinary.com/vitaform/banner.png', description: 'Cloudinary image URL' })
   @IsString()
