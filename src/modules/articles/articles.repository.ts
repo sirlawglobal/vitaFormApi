@@ -39,6 +39,39 @@ export class ArticlesRepository {
     return [items, total];
   }
 
+  async findAllAdmin(
+    page = 1,
+    limit = 10,
+    search?: string,
+    isPublished?: boolean,
+  ): Promise<{ data: Article[]; total: number }> {
+    const filter: any = {};
+    if (isPublished !== undefined) {
+      filter.isPublished = isPublished;
+    }
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { excerpt: { $regex: search, $options: 'i' } },
+        { tags: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.articleModel
+        .find(filter)
+        .populate('authorId', 'firstName lastName profilePicture')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.articleModel.countDocuments(filter).exec(),
+    ]);
+
+    return { data, total };
+  }
+
   async findBySlug(slug: string): Promise<Article | null> {
     return this.articleModel
       .findOne({ slug })

@@ -43,6 +43,28 @@ export class ArticlesController {
 
   // --- Admin Routes ---
 
+  @Get('admin/articles')
+  @UseGuards(SessionAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async getAllArticlesAdmin(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('isPublished') isPublished?: boolean,
+  ) {
+    const { data, total } = await this.articlesService.getAllArticlesAdmin(
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 20,
+      search,
+      isPublished !== undefined ? String(isPublished) === 'true' : undefined,
+    );
+    return {
+      message: 'Admin articles retrieved successfully',
+      data,
+      meta: { page: page ? Number(page) : 1, limit: limit ? Number(limit) : 20, total },
+    };
+  }
+
   @Post('admin/articles')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

@@ -26,6 +26,10 @@ export class ArticlesService {
 
   // --- Admin Methods ---
 
+  async getAllArticlesAdmin(page = 1, limit = 10, search?: string, isPublished?: boolean) {
+    return this.articlesRepository.findAllAdmin(page, limit, search, isPublished);
+  }
+
   async createArticle(authorId: string, data: any) {
     // Generate slug from title if not provided
     const slug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
