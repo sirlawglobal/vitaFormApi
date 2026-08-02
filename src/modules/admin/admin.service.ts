@@ -157,6 +157,26 @@ export class AdminService {
     return { success: true, message: 'Password reset successfully' };
   }
 
+  async deleteUser(id: string, adminUser: { userId: string; email: string }) {
+    const user = await this.userModel.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    await this.userModel.findByIdAndDelete(id);
+
+    await this.adminRepository.createAuditLog({
+      adminId: adminUser.userId,
+      adminEmail: adminUser.email,
+      action: 'DELETE_USER',
+      entityType: 'User',
+      entityId: id,
+      changes: { email: user.email, role: user.role },
+    });
+
+    return { success: true, message: 'User deleted successfully' };
+  }
+
   // ── Audit Logs ─────────────────────────────────────────────────────────────
 
   async getAuditLogs(page = 1, limit = 20, adminId?: string) {

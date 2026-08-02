@@ -106,6 +106,19 @@ export class AdminController {
     });
   }
 
+  @Delete('users/:id')
+  @ApiOperation({ summary: 'Permanently delete a user account' })
+  @ApiResponse({ status: 200, description: 'User account permanently deleted' })
+  async deleteUser(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.adminService.deleteUser(id, {
+      userId: req.session.userId,
+      email: req.session.email || 'admin@vitafoam.com',
+    });
+  }
+
   @Get('audit-logs')
   @ApiOperation({ summary: 'View audit logs of administrative actions for security compliance' })
   @ApiQuery({ name: 'page', required: false, type: Number })
