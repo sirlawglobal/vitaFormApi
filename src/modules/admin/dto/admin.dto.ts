@@ -152,3 +152,10 @@ export class UpdateBannerDto {
   @IsString()
   buttonText?: string;
 }
+
+export class ResetUserPasswordDto {
+  @ApiProperty({ example: 'NewPassw0rd!', description: 'New password for the user', minLength: 8 })
+  @IsString()
+  @MinLength(8)
+  password!: string;
+}

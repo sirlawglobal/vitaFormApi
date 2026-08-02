@@ -8,7 +8,7 @@ import { Order } from '../orders/orders.schema';
 import { Inventory } from '../inventory/inventory.schema';
 import { Role } from '../../common/enums/role.enum';
 import { ROLE_PERMISSIONS } from '../../common/constants/permissions.constants';
-import { CreateBannerDto, CreateUserByAdminDto, UpdateBannerDto, UpdateSettingsDto, UpdateUserRoleDto } from './dto/admin.dto';
+import { CreateBannerDto, CreateUserByAdminDto, UpdateBannerDto, UpdateSettingsDto, UpdateUserRoleDto, ResetUserPasswordDto } from './dto/admin.dto';
 
 @Injectable()
 export class AdminService {
@@ -131,6 +131,30 @@ export class AdminService {
       newRole: dto.role,
       updatedAt: new Date().toISOString(),
     };
+  }
+
+  async resetUserPassword(id: string, dto: ResetUserPasswordDto, adminUser: { userId: string; email: string }) {
+    const user = await this.userModel.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(dto.password, salt);
+
+    user.passwordHash = passwordHash;
+    await user.save();
+
+    await this.adminRepository.createAuditLog({
+      adminId: adminUser.userId,
+      adminEmail: adminUser.email,
+      action: 'RESET_USER_PASSWORD',
+      entityType: 'User',
+      entityId: id,
+      changes: { message: 'Password was manually reset by admin' },
+    });
+
+    return { success: true, message: 'Password reset successfully' };
   }
 
   // ── Audit Logs ─────────────────────────────────────────────────────────────

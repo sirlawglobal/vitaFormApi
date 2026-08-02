@@ -23,6 +23,7 @@ import {
   UpdateBannerDto,
   UpdateSettingsDto,
   UpdateUserRoleDto,
+  ResetUserPasswordDto,
 } from './dto/admin.dto';
 
 @ApiTags('Admin Portal')
@@ -86,6 +87,20 @@ export class AdminController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.adminService.updateUserRole(id, dto, {
+      userId: req.session.userId,
+      email: req.session.email || 'admin@vitafoam.com',
+    });
+  }
+
+  @Patch('users/:id/reset-password')
+  @ApiOperation({ summary: 'Reset a user password manually' })
+  @ApiResponse({ status: 200, description: 'User password updated' })
+  async resetUserPassword(
+    @Param('id') id: string,
+    @Body() dto: ResetUserPasswordDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.adminService.resetUserPassword(id, dto, {
       userId: req.session.userId,
       email: req.session.email || 'admin@vitafoam.com',
     });
