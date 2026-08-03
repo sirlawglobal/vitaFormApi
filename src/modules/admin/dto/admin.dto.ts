@@ -133,6 +133,11 @@ export class CreateBannerDto {
 }
 
 export class UpdateBannerDto {
+  @ApiPropertyOptional({ example: 'custom', enum: ['custom', 'image_only'] })
+  @IsOptional()
+  @IsEnum(['custom', 'image_only'])
+  bannerType?: 'custom' | 'image_only';
+
   @ApiPropertyOptional({ example: 'Updated Banner Title' })
   @IsOptional()
   @IsString()

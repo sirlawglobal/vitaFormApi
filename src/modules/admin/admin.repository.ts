@@ -118,7 +118,14 @@ export class AdminRepository {
   }
 
   async updateBanner(id: string, dto: UpdateBannerDto): Promise<BannerDocument | null> {
-    return this.bannerModel.findByIdAndUpdate(id, { $set: dto }, { new: true }).exec();
+    const updateData: any = { ...dto };
+    if (dto.scheduledStartDate !== undefined) {
+      updateData.scheduledStartDate = dto.scheduledStartDate ? new Date(dto.scheduledStartDate) : null;
+    }
+    if (dto.scheduledEndDate !== undefined) {
+      updateData.scheduledEndDate = dto.scheduledEndDate ? new Date(dto.scheduledEndDate) : null;
+    }
+    return this.bannerModel.findByIdAndUpdate(id, { $set: updateData }, { new: true }).exec();
   }
 
   async deleteBanner(id: string): Promise<boolean> {

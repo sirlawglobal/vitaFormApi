@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
+import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { SessionAuthGuard } from '../../common/guards/session-auth.guard';
@@ -155,6 +156,14 @@ export class AdminController {
       userId: req.session.userId,
       email: req.session.email || 'admin@vitafoam.com',
     });
+  }
+
+  @Public()
+  @Get('banners/active')
+  @ApiOperation({ summary: 'List active promotional banners for storefront' })
+  @ApiResponse({ status: 200, description: 'Active promotional banners' })
+  async getActiveBanners() {
+    return this.adminService.getBanners(1, 20, undefined, undefined, true);
   }
 
   @Post('banners')
