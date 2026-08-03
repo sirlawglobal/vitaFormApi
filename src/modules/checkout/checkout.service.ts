@@ -6,6 +6,8 @@ import {
 import { CartService } from '../cart/cart.service';
 import { UsersRepository } from '../users/users.repository';
 import { CacheService } from '../../infrastructure/cache/cache.service';
+import { OutboxService } from '../../infrastructure/outbox/outbox.service';
+import { DOMAIN_EVENTS } from '../../common/constants/event-names.constants';
 import { CalculateFeesDto } from './dto/calculate-fees.dto';
 import { InitiateCheckoutDto } from './dto/initiate-checkout.dto';
 import { ERROR_CODES } from '../../common/constants/error-codes.constants';
@@ -34,6 +36,7 @@ export class CheckoutService {
     private readonly cartService: CartService,
     private readonly usersRepository: UsersRepository,
     private readonly cacheService: CacheService,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async calculateFees(userId: string, dto: CalculateFeesDto) {
@@ -128,7 +131,21 @@ export class CheckoutService {
         expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 min window
       };
 
-      // 5. Clear Redis Cart upon successful checkout initiation
+      // 5. Save CheckoutInitiated event to Outbox
+      await this.outboxService.saveEvent({
+        aggregateType: 'Checkout',
+        aggregateId: checkoutRef,
+        eventType: DOMAIN_EVENTS.CHECKOUT_INITIATED,
+        payload: {
+          checkoutRef,
+          userId,
+          totalAmount: cart.totalAmount,
+          itemCount: cart.itemCount,
+          paymentMethod: dto.paymentMethod,
+        },
+      });
+
+      // 6. Clear Redis Cart upon successful checkout initiation
       await this.cartService.clearCart(userId, false);
 
       this.logger.log(`Checkout initiated [${checkoutRef}] for user [${userId}]`);

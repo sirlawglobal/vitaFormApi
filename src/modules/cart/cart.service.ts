@@ -4,6 +4,8 @@ import {
 } from '@nestjs/common';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { ProductsRepository } from '../products/products.repository';
+import { OutboxService } from '../../infrastructure/outbox/outbox.service';
+import { DOMAIN_EVENTS } from '../../common/constants/event-names.constants';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { ERROR_CODES } from '../../common/constants/error-codes.constants';
@@ -32,8 +34,8 @@ export interface CartCalculation {
   updatedAt: string;
 }
 
-const CART_TTL_SECONDS = 30 * 24 * 3600; // 30 Days Rolling TTL
-const VAT_RATE = 0.075; // 7.5% Nigerian VAT
+const CART_TTL_SECONDS = 7 * 24 * 3600; // 7 days
+const VAT_RATE = 0.075; // 7.5% VAT
 
 @Injectable()
 export class CartService {
@@ -42,6 +44,7 @@ export class CartService {
   constructor(
     private readonly cacheService: CacheService,
     private readonly productsRepository: ProductsRepository,
+    private readonly outboxService: OutboxService,
   ) {}
 
   private getCartKey(cartId: string, isGuest = false): string {
@@ -124,6 +127,14 @@ export class CartService {
     await this.cacheService.hset(key, { [dto.sku]: JSON.stringify(item) });
     await this.cacheService.expire(key, CART_TTL_SECONDS);
 
+    // Save domain event to outbox
+    await this.outboxService.saveEvent({
+      aggregateType: 'Cart',
+      aggregateId: cartId,
+      eventType: DOMAIN_EVENTS.CART_ITEM_ADDED,
+      payload: { cartId, sku: dto.sku, quantity: dto.quantity, isGuest },
+    });
+
     return this.getCart(cartId, isGuest);
   }
 
@@ -163,12 +174,28 @@ export class CartService {
     const key = this.getCartKey(cartId, isGuest);
     await this.cacheService.hdel(key, sku);
     await this.cacheService.expire(key, CART_TTL_SECONDS);
+
+    await this.outboxService.saveEvent({
+      aggregateType: 'Cart',
+      aggregateId: cartId,
+      eventType: DOMAIN_EVENTS.CART_ITEM_REMOVED,
+      payload: { cartId, sku, isGuest },
+    });
+
     return this.getCart(cartId, isGuest);
   }
 
   async clearCart(cartId: string, isGuest = false): Promise<CartCalculation> {
     const key = this.getCartKey(cartId, isGuest);
     await this.cacheService.del(key);
+
+    await this.outboxService.saveEvent({
+      aggregateType: 'Cart',
+      aggregateId: cartId,
+      eventType: DOMAIN_EVENTS.CART_CLEARED,
+      payload: { cartId, isGuest },
+    });
+
     return this.calculateCart(cartId, []);
   }
 

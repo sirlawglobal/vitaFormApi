@@ -57,6 +57,12 @@ export const DOMAIN_EVENTS = {
 
   // ── Article Events ─────────────────────────────────────────
   ARTICLE_PUBLISHED: 'ArticlePublished',
+
+  // ── Cart & Checkout User Activity Events ───────────────────
+  CART_ITEM_ADDED: 'CartItemAdded',
+  CART_ITEM_REMOVED: 'CartItemRemoved',
+  CART_CLEARED: 'CartCleared',
+  CHECKOUT_INITIATED: 'CheckoutInitiated',
 } as const;
 
 export type DomainEvent = (typeof DOMAIN_EVENTS)[keyof typeof DOMAIN_EVENTS];
