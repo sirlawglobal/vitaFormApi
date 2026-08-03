@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { ProductsRepository } from '../products/products.repository';
+import { UsersRepository } from '../users/users.repository';
 import { OutboxService } from '../../infrastructure/outbox/outbox.service';
 import { DOMAIN_EVENTS } from '../../common/constants/event-names.constants';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
@@ -44,8 +45,26 @@ export class CartService {
   constructor(
     private readonly cacheService: CacheService,
     private readonly productsRepository: ProductsRepository,
+    private readonly usersRepository: UsersRepository,
     private readonly outboxService: OutboxService,
   ) {}
+
+  private async getUserDetails(cartId: string, isGuest = false) {
+    if (isGuest || !cartId) return null;
+    try {
+      const user = await this.usersRepository.findById(cartId);
+      if (!user) return null;
+      return {
+        userId: user._id.toString(),
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+      };
+    } catch {
+      return null;
+    }
+  }
 
   private getCartKey(cartId: string, isGuest = false): string {
     return isGuest ? `cart:guest:${cartId}` : `cart:${cartId}`;
@@ -127,12 +146,21 @@ export class CartService {
     await this.cacheService.hset(key, { [dto.sku]: JSON.stringify(item) });
     await this.cacheService.expire(key, CART_TTL_SECONDS);
 
-    // Save domain event to outbox
+    // Save domain event to outbox with rich user & item details
+    const user = await this.getUserDetails(cartId, isGuest);
     await this.outboxService.saveEvent({
       aggregateType: 'Cart',
       aggregateId: cartId,
       eventType: DOMAIN_EVENTS.CART_ITEM_ADDED,
-      payload: { cartId, sku: dto.sku, quantity: dto.quantity, isGuest },
+      payload: {
+        cartId,
+        sku: dto.sku,
+        productName: item.name,
+        price: item.price,
+        quantity: dto.quantity,
+        isGuest,
+        user,
+      },
     });
 
     return this.getCart(cartId, isGuest);
@@ -175,11 +203,12 @@ export class CartService {
     await this.cacheService.hdel(key, sku);
     await this.cacheService.expire(key, CART_TTL_SECONDS);
 
+    const user = await this.getUserDetails(cartId, isGuest);
     await this.outboxService.saveEvent({
       aggregateType: 'Cart',
       aggregateId: cartId,
       eventType: DOMAIN_EVENTS.CART_ITEM_REMOVED,
-      payload: { cartId, sku, isGuest },
+      payload: { cartId, sku, isGuest, user },
     });
 
     return this.getCart(cartId, isGuest);
@@ -189,11 +218,12 @@ export class CartService {
     const key = this.getCartKey(cartId, isGuest);
     await this.cacheService.del(key);
 
+    const user = await this.getUserDetails(cartId, isGuest);
     await this.outboxService.saveEvent({
       aggregateType: 'Cart',
       aggregateId: cartId,
       eventType: DOMAIN_EVENTS.CART_CLEARED,
-      payload: { cartId, isGuest },
+      payload: { cartId, isGuest, user },
     });
 
     return this.calculateCart(cartId, []);

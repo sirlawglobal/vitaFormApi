@@ -131,7 +131,18 @@ export class CheckoutService {
         expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 min window
       };
 
-      // 5. Save CheckoutInitiated event to Outbox
+      const user = await this.usersRepository.findById(userId);
+      const userDetails = user
+        ? {
+            userId: user._id.toString(),
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phone: user.phone,
+          }
+        : { userId };
+
+      // 5. Save CheckoutInitiated event to Outbox with rich user & address details
       await this.outboxService.saveEvent({
         aggregateType: 'Checkout',
         aggregateId: checkoutRef,
@@ -139,9 +150,13 @@ export class CheckoutService {
         payload: {
           checkoutRef,
           userId,
+          user: userDetails,
           totalAmount: cart.totalAmount,
+          subTotal: cart.subTotal,
+          discountAmount: cart.discountAmount,
           itemCount: cart.itemCount,
           paymentMethod: dto.paymentMethod,
+          shippingAddress,
         },
       });
 
