@@ -6,7 +6,7 @@ import { AuthenticatedRequest } from '../../common/types/session.types';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Wishlist')
-@Controller('api/v1/wishlist')
+@Controller('wishlist')
 @UseGuards(SessionAuthGuard)
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
