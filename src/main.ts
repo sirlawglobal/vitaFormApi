@@ -32,18 +32,30 @@ async function bootstrap(): Promise<void> {
   );
 
   // ── CORS ─────────────────────────────────────────────────────────────────
-  const corsOrigins = config.get<string[]>('app.corsOrigins', ['http://localhost:3000']);
+  const configuredOrigins = config.get<string[]>('app.corsOrigins', []);
+  const defaultOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'https://vita-form-web.vercel.app',
+    'https://sirlawglobal.github.io',
+  ];
+
   app.enableCors({
-    origin: corsOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const allowedList = [...defaultOrigins, ...configuredOrigins];
+      if (
+        allowedList.includes(origin) ||
+        /\.vercel\.app$/.test(origin) ||
+        origin.includes('localhost')
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Session-Token',
-      'X-Correlation-ID',
-      'X-Device-ID',
-      'X-Platform',
-    ],
+    allowedHeaders: '*',
     exposedHeaders: ['X-Correlation-ID'],
     credentials: true,
   });
