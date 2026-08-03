@@ -8,9 +8,9 @@ import { Role } from '../../common/enums/role.enum';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Dealers')
-@Controller('api/v1')
+@Controller()
 export class DealersController {
-  constructor(private readonly dealersService: DealersService) {}
+  constructor(private readonly dealersService: DealersService) { }
 
   @Get('dealers/nearby')
   async getNearbyDealers(

@@ -10,7 +10,7 @@ import { AuthenticatedRequest } from '../../common/types/session.types';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('In-App Notifications')
-@Controller('api/v1/notifications')
+@Controller('notifications')
 @UseGuards(SessionAuthGuard)
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
