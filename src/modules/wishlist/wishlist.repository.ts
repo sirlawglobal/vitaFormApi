@@ -23,7 +23,7 @@ export class WishlistRepository {
       .findOne({ userId: new Types.ObjectId(userId) })
       .populate({
         path: 'items.productId',
-        select: 'name slug images price variants',
+        select: 'name slug images price salePrice variants',
       })
       .exec();
   }

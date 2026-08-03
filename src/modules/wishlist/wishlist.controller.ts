@@ -13,30 +13,18 @@ export class WishlistController {
 
   @Get()
   async getWishlist(@Req() req: AuthenticatedRequest) {
-    const wishlist = await this.wishlistService.getWishlist(req.session.userId);
-    return {
-      message: 'Wishlist retrieved successfully',
-      data: wishlist,
-    };
+    return this.wishlistService.getWishlist(req.session.userId);
   }
 
   @Post()
   @HttpCode(HttpStatus.OK)
   async addItem(@Req() req: AuthenticatedRequest, @Body() dto: AddToWishlistDto) {
-    const wishlist = await this.wishlistService.addItem(req.session.userId, dto.productId);
-    return {
-      message: 'Item added to wishlist',
-      data: wishlist,
-    };
+    return this.wishlistService.addItem(req.session.userId, dto.productId);
   }
 
   @Delete(':productId')
   async removeItem(@Req() req: AuthenticatedRequest, @Param('productId') productId: string) {
-    const wishlist = await this.wishlistService.removeItem(req.session.userId, productId);
-    return {
-      message: 'Item removed from wishlist',
-      data: wishlist,
-    };
+    return this.wishlistService.removeItem(req.session.userId, productId);
   }
 
   @Post(':productId/move-to-cart')
