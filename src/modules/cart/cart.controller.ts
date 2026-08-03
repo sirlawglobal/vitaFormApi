@@ -26,26 +26,59 @@ import { MergeCartDto } from './dto/merge-cart.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { SessionAuthGuard } from '../../common/guards/session-auth.guard';
 import { AuthenticatedRequest } from '../../common/types/session.types';
+import { CacheService } from '../../infrastructure/cache/cache.service';
+import { CACHE_KEYS } from '../../common/constants/cache-keys.constants';
 
 @ApiTags('Shopping Cart')
 @ApiHeader({
   name: 'X-Guest-Session-ID',
   required: false,
-  description: 'Guest session UUID (e.g. guest_987xyz) for unauthenticated guest cart operations',
+  description: 'Guest session UUID for unauthenticated guest cart operations',
 })
 @Controller('cart')
 export class CartController {
-  constructor(private readonly cartService: CartService) {}
+  constructor(
+    private readonly cartService: CartService,
+    private readonly cacheService: CacheService,
+  ) {}
 
-  private resolveCartContext(
+  private async resolveCartContext(
     req: AuthenticatedRequest,
     guestHeader?: string,
-  ): { cartId: string; isGuest: boolean } {
+  ): Promise<{ cartId: string; isGuest: boolean }> {
     if (req.session?.userId) {
       return { cartId: req.session.userId, isGuest: false };
     }
+
+    const token = this.extractTokenFromRequest(req);
+    if (token) {
+      const sessionKey = CACHE_KEYS.session(token);
+      const rawSession = await this.cacheService.hgetall(sessionKey);
+      if (rawSession && rawSession.userId) {
+        return { cartId: rawSession.userId, isGuest: false };
+      }
+    }
+
     const guestId = guestHeader || 'default_guest_session';
     return { cartId: guestId, isGuest: true };
+  }
+
+  private extractTokenFromRequest(request: any): string | null {
+    const headerToken = request.headers['x-session-token'];
+    if (headerToken && typeof headerToken === 'string') {
+      return headerToken.trim();
+    }
+
+    const authHeader = request.headers['authorization'];
+    if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+      return authHeader.substring(7).trim();
+    }
+
+    if (request.cookies && request.cookies['x-session-token']) {
+      return request.cookies['x-session-token'];
+    }
+
+    return null;
   }
 
   @Public()
@@ -56,7 +89,7 @@ export class CartController {
     @Req() req: AuthenticatedRequest,
     @Headers('X-Guest-Session-ID') guestHeader?: string,
   ) {
-    const { cartId, isGuest } = this.resolveCartContext(req, guestHeader);
+    const { cartId, isGuest } = await this.resolveCartContext(req, guestHeader);
     return this.cartService.getCart(cartId, isGuest);
   }
 
@@ -70,7 +103,7 @@ export class CartController {
     @Body() dto: AddCartItemDto,
     @Headers('X-Guest-Session-ID') guestHeader?: string,
   ) {
-    const { cartId, isGuest } = this.resolveCartContext(req, guestHeader);
+    const { cartId, isGuest } = await this.resolveCartContext(req, guestHeader);
     return this.cartService.addItem(cartId, dto, isGuest);
   }
 
@@ -86,7 +119,7 @@ export class CartController {
     @Body() dto: UpdateCartItemDto,
     @Headers('X-Guest-Session-ID') guestHeader?: string,
   ) {
-    const { cartId, isGuest } = this.resolveCartContext(req, guestHeader);
+    const { cartId, isGuest } = await this.resolveCartContext(req, guestHeader);
     return this.cartService.updateItem(cartId, sku, dto, isGuest);
   }
 
@@ -100,7 +133,7 @@ export class CartController {
     @Param('sku') sku: string,
     @Headers('X-Guest-Session-ID') guestHeader?: string,
   ) {
-    const { cartId, isGuest } = this.resolveCartContext(req, guestHeader);
+    const { cartId, isGuest } = await this.resolveCartContext(req, guestHeader);
     return this.cartService.removeItem(cartId, sku, isGuest);
   }
 
@@ -112,7 +145,7 @@ export class CartController {
     @Req() req: AuthenticatedRequest,
     @Headers('X-Guest-Session-ID') guestHeader?: string,
   ) {
-    const { cartId, isGuest } = this.resolveCartContext(req, guestHeader);
+    const { cartId, isGuest } = await this.resolveCartContext(req, guestHeader);
     return this.cartService.clearCart(cartId, isGuest);
   }
 
@@ -126,7 +159,7 @@ export class CartController {
     @Body() dto: ApplyCouponDto,
     @Headers('X-Guest-Session-ID') guestHeader?: string,
   ) {
-    const { cartId, isGuest } = this.resolveCartContext(req, guestHeader);
+    const { cartId, isGuest } = await this.resolveCartContext(req, guestHeader);
     return this.cartService.applyCoupon(cartId, dto.couponCode, isGuest);
   }
 
@@ -138,7 +171,7 @@ export class CartController {
     @Req() req: AuthenticatedRequest,
     @Headers('X-Guest-Session-ID') guestHeader?: string,
   ) {
-    const { cartId, isGuest } = this.resolveCartContext(req, guestHeader);
+    const { cartId, isGuest } = await this.resolveCartContext(req, guestHeader);
     return this.cartService.removeCoupon(cartId, isGuest);
   }
 
