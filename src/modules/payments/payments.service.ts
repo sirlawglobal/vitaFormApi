@@ -92,12 +92,16 @@ export class PaymentsService {
     const randomCode = Math.floor(1000 + Math.random() * 9000);
     const paymentRef = `PAY-${new Date().getFullYear()}-${randomCode}-${Date.now().toString().slice(-6)}`;
 
+    const frontendUrl = process.env.FRONTEND_URL || 'https://vitaform-store.vercel.app';
+    const callbackUrl = `${frontendUrl}/account/orders?paymentRef=${paymentRef}`;
+
     // 3. Initialize Gateway Session
     const initResult = await strategy.initializePayment({
       email: userEmail,
       amount: order.paymentSummary.totalAmount,
       currency: 'NGN',
       reference: paymentRef,
+      callbackUrl,
       metadata: {
         orderId: order._id.toString(),
         orderNumber: order.orderNumber,
