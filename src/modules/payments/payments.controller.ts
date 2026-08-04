@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -87,6 +88,173 @@ export class PaymentsController {
   @ApiResponse({ status: 404, description: 'Payment reference not found' })
   async verifyPayment(@Param('reference') reference: string) {
     return this.paymentsService.verifyPayment(reference);
+  }
+
+  @Public()
+  @Get('simulate/:reference')
+  @ApiOperation({ summary: 'Simulate successful payment sandbox environment' })
+  async simulatePaymentPage(
+    @Param('reference') reference: string,
+    @Res() res: any,
+  ) {
+    let payment;
+    try {
+      payment = await this.paymentsService.verifyPayment(reference);
+    } catch (err) {
+      // ignore
+    }
+
+    const orderNumber = payment ? payment.orderNumber : 'N/A';
+    const amount = payment ? payment.amount : 0;
+    const provider = payment ? payment.provider : 'Paystack';
+
+    const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Vitafoam Payment Sandbox Simulator</title>
+      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+      <style>
+        body {
+          margin: 0;
+          font-family: 'Outfit', sans-serif;
+          background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+          color: #f8fafc;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+        }
+        .container {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 24px;
+          padding: 40px;
+          width: 90%;
+          max-width: 450px;
+          text-align: center;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .icon {
+          width: 80px;
+          height: 80px;
+          background: #22c55e;
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 24px;
+          font-size: 40px;
+          box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+          animation: pulse 2s infinite;
+        }
+        h1 {
+          font-size: 24px;
+          font-weight: 800;
+          margin-bottom: 8px;
+          background: linear-gradient(to right, #60a5fa, #a78bfa);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+          color: #94a3b8;
+          font-size: 14px;
+          margin-bottom: 32px;
+        }
+        .details-box {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 32px;
+          text-align: left;
+        }
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 12px;
+          font-size: 14px;
+        }
+        .detail-row:last-child {
+          margin-bottom: 0;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          padding-top: 12px;
+        }
+        .label {
+          color: #64748b;
+        }
+        .value {
+          font-weight: 600;
+        }
+        .btn {
+          display: block;
+          width: 100%;
+          padding: 16px;
+          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+          color: white;
+          border: none;
+          border-radius: 14px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-decoration: none;
+          box-shadow: 0 10px 20px rgba(139, 92, 246, 0.25);
+        }
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 15px 25px rgba(139, 92, 246, 0.4);
+        }
+        @keyframes pulse {
+          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+          70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+      </style>
+      <script>
+        setTimeout(function() {
+          const path = '/account/orders';
+          let redirectUrl = 'http://localhost:3001' + path;
+          window.location.href = redirectUrl;
+        }, 4000);
+      </script>
+    </head>
+    <body>
+      <div class="container">
+        <div class="icon">✓</div>
+        <h1>Payment Successful!</h1>
+        <p class="subtitle">Vitafoam Payment Sandbox Simulator</p>
+        
+        <div class="details-box">
+          <div class="detail-row">
+            <span class="label">Provider</span>
+            <span class="value" style="text-transform: capitalize;">${provider}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Reference</span>
+            <span class="value" style="font-family: monospace;">${reference}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Order Number</span>
+            <span class="value">${orderNumber}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Amount Paid</span>
+            <span class="value" style="color: #22c55e; font-size: 16px; font-weight: 800;">₦${amount.toLocaleString()}</span>
+          </div>
+        </div>
+
+        <a href="http://localhost:3001/account/orders" class="btn">Return to Storefront</a>
+      </div>
+    </body>
+    </html>
+    `;
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
   }
 
   // ── Public Webhook Handlers ───────────────────────────────────────────────

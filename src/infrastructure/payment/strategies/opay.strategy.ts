@@ -25,12 +25,18 @@ export class OpayStrategy implements PaymentStrategy {
   async initializePayment(
     payload: PaymentInitializePayload,
   ): Promise<PaymentInitializeResult> {
-    if (!this.secretKey || this.secretKey.startsWith('mock_')) {
+    const isMock =
+      !this.secretKey ||
+      this.secretKey.startsWith('mock_') ||
+      this.secretKey.includes('placeholder');
+
+    if (isMock) {
+      const appUrl = process.env.APP_URL || 'http://localhost:3000';
       this.logger.warn(
-        `[OPay Dev Mode] Initializing mock payment for ref [${payload.reference}]`,
+        `[OPay Dev Mode] Initializing mock simulator checkout for ref [${payload.reference}]`,
       );
       return {
-        authorizationUrl: `https://cashier.opayweb.com/pay/mock-${payload.reference}`,
+        authorizationUrl: `${appUrl}/api/v1/payments/simulate/${payload.reference}`,
         reference: payload.reference,
         gatewayReference: `opay_${Math.floor(100000 + Math.random() * 900000)}`,
       };
@@ -72,15 +78,21 @@ export class OpayStrategy implements PaymentStrategy {
       };
     } catch (err) {
       this.logger.error(`OPay initialize error: ${err instanceof Error ? err.message : String(err)}`);
+      const appUrl = process.env.APP_URL || 'http://localhost:3000';
       return {
-        authorizationUrl: `https://cashier.opayweb.com/pay/demo-${payload.reference}`,
+        authorizationUrl: `${appUrl}/api/v1/payments/simulate/${payload.reference}`,
         reference: payload.reference,
       };
     }
   }
 
   async verifyPayment(reference: string): Promise<PaymentVerifyResult> {
-    if (!this.secretKey || this.secretKey.startsWith('mock_')) {
+    const isMock =
+      !this.secretKey ||
+      this.secretKey.startsWith('mock_') ||
+      this.secretKey.includes('placeholder');
+
+    if (isMock) {
       return {
         status: 'SUCCESS',
         amount: 50000,
@@ -89,9 +101,9 @@ export class OpayStrategy implements PaymentStrategy {
         gatewayReference: `opay_mock_${reference}`,
         paidAt: new Date().toISOString(),
         channel: 'opay_wallet',
+        rawResponse: {},
       };
     }
-
     try {
       const response = await fetch(`${this.baseUrl}/cashier/status`, {
         method: 'POST',

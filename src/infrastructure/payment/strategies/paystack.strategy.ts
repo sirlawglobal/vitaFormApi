@@ -24,14 +24,18 @@ export class PaystackStrategy implements PaymentStrategy {
     payload: PaymentInitializePayload,
   ): Promise<PaymentInitializeResult> {
     const amountInKobo = Math.round(payload.amount * 100);
+    const isMock =
+      !this.secretKey ||
+      this.secretKey.startsWith('mock_') ||
+      this.secretKey.includes('placeholder');
 
-    // Development / Demo Fallback Mode if no API Key provided
-    if (!this.secretKey || this.secretKey.startsWith('mock_')) {
+    if (isMock) {
+      const appUrl = process.env.APP_URL || 'http://localhost:3000';
       this.logger.warn(
-        `[Paystack Dev Mode] Initializing mock payment for ref [${payload.reference}]`,
+        `[Paystack Dev Mode] Initializing mock simulator checkout for ref [${payload.reference}]`,
       );
       return {
-        authorizationUrl: `https://checkout.paystack.com/mock-checkout-${payload.reference}`,
+        authorizationUrl: `${appUrl}/api/v1/payments/simulate/${payload.reference}`,
         reference: payload.reference,
         gatewayReference: `pstk_${Math.floor(100000 + Math.random() * 900000)}`,
         accessCode: `acc_${Math.floor(100000 + Math.random() * 900000)}`,
@@ -70,9 +74,9 @@ export class PaystackStrategy implements PaymentStrategy {
       this.logger.error(
         `Paystack initialize error: ${err instanceof Error ? err.message : String(err)}`,
       );
-      // Fallback for seamless local testing
+      const appUrl = process.env.APP_URL || 'http://localhost:3000';
       return {
-        authorizationUrl: `https://checkout.paystack.com/demo-${payload.reference}`,
+        authorizationUrl: `${appUrl}/api/v1/payments/simulate/${payload.reference}`,
         reference: payload.reference,
         gatewayReference: `pstk_demo_${payload.reference}`,
       };
@@ -80,7 +84,12 @@ export class PaystackStrategy implements PaymentStrategy {
   }
 
   async verifyPayment(reference: string): Promise<PaymentVerifyResult> {
-    if (!this.secretKey || this.secretKey.startsWith('mock_')) {
+    const isMock =
+      !this.secretKey ||
+      this.secretKey.startsWith('mock_') ||
+      this.secretKey.includes('placeholder');
+
+    if (isMock) {
       return {
         status: 'SUCCESS',
         amount: 50000,
