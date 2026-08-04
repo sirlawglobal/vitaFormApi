@@ -51,6 +51,7 @@ export class PaystackStrategy implements PaymentStrategy {
           reference: payload.reference,
           callback_url: payload.callbackUrl,
           metadata: payload.metadata,
+          channels: ['card', 'bank_transfer', 'ussd', 'mobile_money'],
         }),
       });
 

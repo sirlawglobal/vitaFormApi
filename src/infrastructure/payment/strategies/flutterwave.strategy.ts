@@ -51,6 +51,7 @@ export class FlutterwaveStrategy implements PaymentStrategy {
             email: payload.email,
           },
           meta: payload.metadata,
+          payment_options: 'card,banktransfer,ussd,mobilemoney',
         }),
       });
 
