@@ -56,6 +56,7 @@ export class OpayStrategy implements PaymentStrategy {
           currency: payload.currency || 'NGN',
           returnUrl: payload.callbackUrl,
           callbackUrl: payload.callbackUrl,
+          payMethods: ['CardPayment', 'BankPayment', 'BalancePayment'],
         }),
       });
 
