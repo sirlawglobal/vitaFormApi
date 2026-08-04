@@ -239,4 +239,8 @@ export class PaymentsService {
 
     return { success: true, message: `Webhook processed successfully for reference ${reference}` };
   }
+
+  async getAdminPayments(page = 1, limit = 20) {
+    return this.paymentsRepository.findAdminFiltered(page, limit);
+  }
 }

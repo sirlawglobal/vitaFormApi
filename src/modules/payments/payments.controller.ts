@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -60,6 +61,22 @@ export class PaymentsController {
   @ApiResponse({ status: 200, description: 'Gateway settings updated successfully' })
   async updateAdminGateways(@Body() dto: UpdateGatewaySettingsDto) {
     return this.paymentsService.updateGatewaySettings(dto);
+  }
+
+  @UseGuards(SessionAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.SUPPORT)
+  @ApiBearerAuth()
+  @Get('admin/transactions')
+  @ApiOperation({ summary: '[Admin] List all payment transactions from database' })
+  @ApiResponse({ status: 200, description: 'Paginated admin payment transactions list' })
+  async getAdminTransactions(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.paymentsService.getAdminPayments(
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 20,
+    );
   }
 
   @UseGuards(SessionAuthGuard)

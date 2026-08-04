@@ -41,4 +41,17 @@ export class PaymentsRepository {
       .findOneAndUpdate({ paymentRef }, { $set: setObj }, { new: true, session })
       .exec();
   }
+
+  async findAdminFiltered(
+    page = 1,
+    limit = 20,
+  ): Promise<{ items: PaymentDocument[]; total: number }> {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.paymentModel.find().sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.paymentModel.countDocuments().exec(),
+    ]);
+
+    return { items, total };
+  }
 }
