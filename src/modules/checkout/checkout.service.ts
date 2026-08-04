@@ -12,6 +12,8 @@ import { CalculateFeesDto } from './dto/calculate-fees.dto';
 import { InitiateCheckoutDto } from './dto/initiate-checkout.dto';
 import { ERROR_CODES } from '../../common/constants/error-codes.constants';
 import { BusinessException } from '../../common/exceptions/business.exception';
+import { OrdersService } from '../orders/orders.service';
+import { PaymentsService } from '../payments/payments.service';
 
 export interface CheckoutInitiateResult {
   checkoutRef: string;
@@ -26,6 +28,9 @@ export interface CheckoutInitiateResult {
   paymentMethod: string;
   notes?: string;
   expiresAt: string;
+  orderId?: string;
+  orderNumber?: string;
+  paymentUrl?: string;
 }
 
 @Injectable()
@@ -37,6 +42,8 @@ export class CheckoutService {
     private readonly usersRepository: UsersRepository,
     private readonly cacheService: CacheService,
     private readonly outboxService: OutboxService,
+    private readonly ordersService: OrdersService,
+    private readonly paymentsService: PaymentsService,
   ) {}
 
   async calculateFees(userId: string, dto: CalculateFeesDto) {
@@ -160,11 +167,36 @@ export class CheckoutService {
         },
       });
 
-      // 6. Clear Redis Cart upon successful checkout initiation
+      // 6. Create Order synchronously in database
+      const order = await this.ordersService.createOrderFromCheckout(userId, checkoutPayload);
+
+      // 7. Initialize Payment Session synchronously
+      let paymentUrl = '';
+      try {
+        const userEmail = user?.email || 'customer@vitafoam.com';
+        const paymentInit = await this.paymentsService.initializePayment(
+          userId,
+          {
+            checkoutRef,
+            provider: dto.paymentMethod,
+          },
+          userEmail,
+        );
+        paymentUrl = paymentInit.authorizationUrl;
+      } catch (err) {
+        this.logger.error(`Failed to initialize payment session: ${err instanceof Error ? err.message : String(err)}`);
+      }
+
+      // 8. Clear Redis Cart upon successful checkout initiation
       await this.cartService.clearCart(userId, false);
 
-      this.logger.log(`Checkout initiated [${checkoutRef}] for user [${userId}]`);
-      return checkoutPayload;
+      this.logger.log(`Checkout initiated and Order created [${order.orderNumber}] for user [${userId}]`);
+      return {
+        ...checkoutPayload,
+        orderId: order._id.toString(),
+        orderNumber: order.orderNumber,
+        paymentUrl,
+      };
     } finally {
       // Release distributed SKU locks
       for (const lockKey of acquiredLocks) {
