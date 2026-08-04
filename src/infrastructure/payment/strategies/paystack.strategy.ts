@@ -8,6 +8,8 @@ import {
   PaymentStrategy,
   PaymentVerifyResult,
 } from '../interfaces/payment-strategy.interface';
+import { BusinessException } from '../../../common/exceptions/business.exception';
+import { ERROR_CODES } from '../../../common/constants/error-codes.constants';
 
 @Injectable()
 export class PaystackStrategy implements PaymentStrategy {
@@ -17,7 +19,8 @@ export class PaystackStrategy implements PaymentStrategy {
   private readonly baseUrl = 'https://api.paystack.co';
 
   constructor(private readonly config: ConfigService) {
-    this.secretKey = this.config.get<string>('payment.paystackSecretKey', '') || '';
+    const rawKey = this.config.get<string>('payment.paystackSecretKey', '') || '';
+    this.secretKey = rawKey.trim().replace(/^["']|["']$/g, '');
   }
 
   async initializePayment(
@@ -73,7 +76,10 @@ export class PaystackStrategy implements PaymentStrategy {
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
       this.logger.error(`Paystack initialize error: ${errMsg}`);
-      throw new Error(`Paystack Gateway Initialization Error: ${errMsg}`);
+      throw new BusinessException({
+        code: ERROR_CODES.PAYMENT_FAILED,
+        message: `Paystack Gateway Error: ${errMsg}`,
+      });
     }
   }
 
