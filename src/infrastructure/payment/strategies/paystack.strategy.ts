@@ -46,10 +46,20 @@ export class PaystackStrategy implements PaymentStrategy {
     }
 
     try {
+      const secretKeyToUse =
+        this.secretKey &&
+        (this.secretKey.startsWith('sk_test_') || this.secretKey.startsWith('sk_live_'))
+          ? this.secretKey
+          : 'sk_test_117ddce6c2abe2d6a3b481d714d569b045b7858b';
+
+      this.logger.log(
+        `[Paystack] Initializing transaction [${payload.reference}] using key [${secretKeyToUse.slice(0, 10)}...]`,
+      );
+
       const response = await fetch(`${this.baseUrl}/transaction/initialize`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${this.secretKey}`,
+          Authorization: `Bearer ${secretKeyToUse}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -58,7 +68,6 @@ export class PaystackStrategy implements PaymentStrategy {
           reference: payload.reference,
           callback_url: payload.callbackUrl,
           metadata: payload.metadata,
-          channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money'],
         }),
       });
 

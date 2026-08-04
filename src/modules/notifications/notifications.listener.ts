@@ -12,6 +12,10 @@ export class NotificationsListener {
 
   @OnEvent(DOMAIN_EVENTS.ORDER_CREATED)
   async handleOrderCreated(event: { orderId: string; userId: string; amount: number; orderNumber: string }) {
+    if (!event?.userId) {
+      this.logger.warn(`Skipping ${DOMAIN_EVENTS.ORDER_CREATED} notification due to missing userId`);
+      return;
+    }
     this.logger.log(`Handling ${DOMAIN_EVENTS.ORDER_CREATED} for user ${event.userId}`);
     await this.notificationsService.send(
       event.userId,
