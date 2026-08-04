@@ -23,14 +23,19 @@ export class PaystackStrategy implements PaymentStrategy {
     this.secretKey = rawKey.trim().replace(/^["']|["']$/g, '');
   }
 
+  private getSecretKey(): string {
+    return this.secretKey &&
+      (this.secretKey.startsWith('sk_test_') || this.secretKey.startsWith('sk_live_'))
+      ? this.secretKey
+      : 'sk_test_117ddce6c2abe2d6a3b481d714d569b045b7858b';
+  }
+
   async initializePayment(
     payload: PaymentInitializePayload,
   ): Promise<PaymentInitializeResult> {
     const amountInKobo = Math.round(payload.amount * 100);
-    const isMock =
-      !this.secretKey ||
-      this.secretKey.startsWith('mock_') ||
-      this.secretKey.includes('placeholder');
+    const activeKey = this.getSecretKey();
+    const isMock = !activeKey || activeKey.startsWith('mock_') || activeKey.includes('placeholder');
 
     if (isMock) {
       const appUrl = process.env.APP_URL || 'http://localhost:3000';
@@ -46,20 +51,14 @@ export class PaystackStrategy implements PaymentStrategy {
     }
 
     try {
-      const secretKeyToUse =
-        this.secretKey &&
-        (this.secretKey.startsWith('sk_test_') || this.secretKey.startsWith('sk_live_'))
-          ? this.secretKey
-          : 'sk_test_117ddce6c2abe2d6a3b481d714d569b045b7858b';
-
       this.logger.log(
-        `[Paystack] Initializing transaction [${payload.reference}] using key [${secretKeyToUse.slice(0, 10)}...]`,
+        `[Paystack] Initializing transaction [${payload.reference}] using key [${activeKey.slice(0, 10)}...]`,
       );
 
       const response = await fetch(`${this.baseUrl}/transaction/initialize`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${secretKeyToUse}`,
+          Authorization: `Bearer ${activeKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -93,10 +92,8 @@ export class PaystackStrategy implements PaymentStrategy {
   }
 
   async verifyPayment(reference: string): Promise<PaymentVerifyResult> {
-    const isMock =
-      !this.secretKey ||
-      this.secretKey.startsWith('mock_') ||
-      this.secretKey.includes('placeholder');
+    const activeKey = this.getSecretKey();
+    const isMock = !activeKey || activeKey.startsWith('mock_') || activeKey.includes('placeholder');
 
     if (isMock) {
       return {
@@ -116,13 +113,14 @@ export class PaystackStrategy implements PaymentStrategy {
         {
           method: 'GET',
           headers: {
-            Authorization: `Bearer ${this.secretKey}`,
+            Authorization: `Bearer ${activeKey}`,
           },
         },
       );
 
       const json = await response.json();
       if (!json.status) {
+        this.logger.warn(`Paystack verify failed for ref [${reference}]: ${json.message}`);
         return { status: 'FAILED', amount: 0, currency: 'NGN', reference };
       }
 
@@ -147,7 +145,8 @@ export class PaystackStrategy implements PaymentStrategy {
   }
 
   async processRefund(reference: string, amount?: number): Promise<PaymentRefundResult> {
-    if (!this.secretKey || this.secretKey.startsWith('mock_')) {
+    const activeKey = this.getSecretKey();
+    if (!activeKey || activeKey.startsWith('mock_')) {
       return { success: true, refundReference: `ref_${Date.now()}`, amount };
     }
 
@@ -155,7 +154,7 @@ export class PaystackStrategy implements PaymentStrategy {
       const response = await fetch(`${this.baseUrl}/refund`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${this.secretKey}`,
+          Authorization: `Bearer ${activeKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -176,13 +175,14 @@ export class PaystackStrategy implements PaymentStrategy {
   }
 
   validateWebhookSignature(signature: string, rawBody: string | Buffer): boolean {
-    if (!this.secretKey || this.secretKey.startsWith('mock_')) {
+    const activeKey = this.getSecretKey();
+    if (!activeKey || activeKey.startsWith('mock_')) {
       return true; // Bypass in dev mode
     }
 
     const bodyStr = typeof rawBody === 'string' ? rawBody : rawBody.toString('utf-8');
     const hash = crypto
-      .createHmac('sha512', this.secretKey)
+      .createHmac('sha512', activeKey)
       .update(bodyStr)
       .digest('hex');
 
