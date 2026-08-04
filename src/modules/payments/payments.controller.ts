@@ -215,11 +215,25 @@ export class PaymentsController {
         }
       </style>
       <script>
-        setTimeout(function() {
-          const path = '/account/orders';
-          let redirectUrl = 'http://localhost:3001' + path;
-          window.location.href = redirectUrl;
-        }, 4000);
+        document.addEventListener('DOMContentLoaded', function() {
+          let frontendUrl = 'https://vitaform-store.vercel.app';
+          try {
+            if (document.referrer && document.referrer.startsWith('http')) {
+              const urlObj = new URL(document.referrer);
+              frontendUrl = urlObj.origin;
+            } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+              frontendUrl = 'http://localhost:3001';
+            }
+          } catch (e) {}
+
+          const target = frontendUrl + '/account/orders';
+          const btn = document.getElementById('returnBtn');
+          if (btn) btn.href = target;
+
+          setTimeout(function() {
+            window.location.href = target;
+          }, 4000);
+        });
       </script>
     </head>
     <body>
@@ -247,7 +261,7 @@ export class PaymentsController {
           </div>
         </div>
 
-        <a href="http://localhost:3001/account/orders" class="btn">Return to Storefront</a>
+        <a id="returnBtn" href="https://vitaform-store.vercel.app/account/orders" class="btn">Return to Storefront</a>
       </div>
     </body>
     </html>
