@@ -72,12 +72,9 @@ export class FlutterwaveStrategy implements PaymentStrategy {
         gatewayReference: payload.reference,
       };
     } catch (err) {
-      this.logger.error(`Flutterwave initialize error: ${err instanceof Error ? err.message : String(err)}`);
-      const appUrl = process.env.APP_URL || 'http://localhost:3000';
-      return {
-        authorizationUrl: `${appUrl}/api/v1/payments/simulate/${payload.reference}`,
-        reference: payload.reference,
-      };
+      const errMsg = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Flutterwave initialize error: ${errMsg}`);
+      throw new Error(`Flutterwave Gateway Initialization Error: ${errMsg}`);
     }
   }
 

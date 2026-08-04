@@ -71,15 +71,9 @@ export class PaystackStrategy implements PaymentStrategy {
         accessCode: json.data.access_code,
       };
     } catch (err) {
-      this.logger.error(
-        `Paystack initialize error: ${err instanceof Error ? err.message : String(err)}`,
-      );
-      const appUrl = process.env.APP_URL || 'http://localhost:3000';
-      return {
-        authorizationUrl: `${appUrl}/api/v1/payments/simulate/${payload.reference}`,
-        reference: payload.reference,
-        gatewayReference: `pstk_demo_${payload.reference}`,
-      };
+      const errMsg = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Paystack initialize error: ${errMsg}`);
+      throw new Error(`Paystack Gateway Initialization Error: ${errMsg}`);
     }
   }
 

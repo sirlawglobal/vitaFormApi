@@ -77,12 +77,9 @@ export class OpayStrategy implements PaymentStrategy {
         gatewayReference: json.data.orderNo,
       };
     } catch (err) {
-      this.logger.error(`OPay initialize error: ${err instanceof Error ? err.message : String(err)}`);
-      const appUrl = process.env.APP_URL || 'http://localhost:3000';
-      return {
-        authorizationUrl: `${appUrl}/api/v1/payments/simulate/${payload.reference}`,
-        reference: payload.reference,
-      };
+      const errMsg = err instanceof Error ? err.message : String(err);
+      this.logger.error(`OPay initialize error: ${errMsg}`);
+      throw new Error(`OPay Gateway Initialization Error: ${errMsg}`);
     }
   }
 
