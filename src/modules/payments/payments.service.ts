@@ -88,9 +88,9 @@ export class PaymentsService {
 
     const strategy = this.paymentProviderFactory.getProvider(providerName);
 
-    // 2. Generate unique internal payment reference
-    const randomCode = Math.floor(10000 + Math.random() * 90000);
-    const paymentRef = `PAY-${new Date().getFullYear()}-${randomCode}`;
+    // 2. Generate unique internal payment reference (adding timestamp suffix for global uniqueness)
+    const randomCode = Math.floor(1000 + Math.random() * 9000);
+    const paymentRef = `PAY-${new Date().getFullYear()}-${randomCode}-${Date.now().toString().slice(-6)}`;
 
     // 3. Initialize Gateway Session
     const initResult = await strategy.initializePayment({
