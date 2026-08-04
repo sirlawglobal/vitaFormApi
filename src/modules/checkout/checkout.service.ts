@@ -171,21 +171,16 @@ export class CheckoutService {
       const order = await this.ordersService.createOrderFromCheckout(userId, checkoutPayload);
 
       // 7. Initialize Payment Session synchronously
-      let paymentUrl = '';
-      try {
-        const userEmail = user?.email || 'customer@vitafoam.com';
-        const paymentInit = await this.paymentsService.initializePayment(
-          userId,
-          {
-            checkoutRef,
-            provider: dto.paymentMethod,
-          },
-          userEmail,
-        );
-        paymentUrl = paymentInit.authorizationUrl;
-      } catch (err) {
-        this.logger.error(`Failed to initialize payment session: ${err instanceof Error ? err.message : String(err)}`);
-      }
+      const userEmail = user?.email || 'customer@vitafoam.com';
+      const paymentInit = await this.paymentsService.initializePayment(
+        userId,
+        {
+          checkoutRef,
+          provider: dto.paymentMethod,
+        },
+        userEmail,
+      );
+      const paymentUrl = paymentInit.authorizationUrl;
 
       // 8. Clear Redis Cart upon successful checkout initiation
       await this.cartService.clearCart(userId, false);
