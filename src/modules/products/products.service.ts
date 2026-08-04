@@ -98,8 +98,9 @@ export class ProductsService {
           filter.isActive = true;
         }
 
-        if (dto.categorySlug) {
-          filter.categorySlug = dto.categorySlug.toLowerCase().trim();
+        const categoryFilter = dto.categorySlug || dto.category;
+        if (categoryFilter) {
+          filter.categorySlug = categoryFilter.toLowerCase().trim();
         }
 
         if (dto.firmness) {
@@ -120,8 +121,10 @@ export class ProductsService {
           filter.isFeatured = dto.isFeatured;
         }
 
-        if (dto.search) {
-          const searchRegex = new RegExp(dto.search.trim(), 'i');
+        const searchQuery = dto.search || dto.q;
+        if (searchQuery && searchQuery.trim()) {
+          const escapedSearch = searchQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const searchRegex = new RegExp(escapedSearch, 'i');
           filter.$or = [
             { name: searchRegex },
             { description: searchRegex },

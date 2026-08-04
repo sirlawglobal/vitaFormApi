@@ -25,6 +25,11 @@ export class QueryProductsDto {
   @IsString()
   categorySlug?: string;
 
+  @ApiPropertyOptional({ example: 'orthopedic', description: 'Alias for categorySlug' })
+  @IsOptional()
+  @IsString()
+  category?: string;
+
   @ApiPropertyOptional({ enum: Firmness, example: Firmness.FIRM, description: 'Filter by mattress firmness' })
   @IsOptional()
   @IsEnum(Firmness)
@@ -48,6 +53,11 @@ export class QueryProductsDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({ example: 'galaxy', description: 'Alias for search query' })
+  @IsOptional()
+  @IsString()
+  q?: string;
 
   @ApiPropertyOptional({ example: 'orthopedic', description: 'Filter by tag' })
   @IsOptional()
