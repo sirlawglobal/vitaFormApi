@@ -38,56 +38,44 @@ export enum KidsOrAdultsEnum {
 
 export class SubmitSleepQuizDto {
   @ApiProperty({
-    enum: SleepingPositionEnum,
-    example: SleepingPositionEnum.SIDE,
+    example: 'side',
     description: 'Primary sleeping position',
   })
-  @IsEnum(SleepingPositionEnum)
-  sleepingPosition: SleepingPositionEnum;
-
-  @ApiPropertyOptional({ example: 75, description: 'Body weight in kg' })
   @IsOptional()
-  @IsNumber()
-  @Min(20)
-  @Max(300)
-  bodyWeightKg?: number;
+  @IsString()
+  sleepingPosition?: string;
 
-  @ApiPropertyOptional({ example: 32, description: 'User age' })
+  @ApiPropertyOptional({ example: 'Under 60 kg', description: 'Body weight range or kg' })
   @IsOptional()
-  @IsNumber()
-  @Min(1)
-  @Max(120)
-  age?: number;
+  bodyWeightKg?: any;
 
-  @ApiPropertyOptional({ example: 350000, description: 'Max budget in NGN' })
+  @ApiPropertyOptional({ example: 'Under 30 years', description: 'User age or age range' })
   @IsOptional()
-  @IsNumber()
-  @Min(10000)
-  budget?: number;
+  age?: any;
+
+  @ApiPropertyOptional({ example: 'Under ₦100,000', description: 'Max budget or budget range' })
+  @IsOptional()
+  budget?: any;
 
   @ApiPropertyOptional({
-    enum: FirmnessEnum,
-    example: FirmnessEnum.MEDIUM,
+    example: 'medium',
     description: 'Preferred mattress firmness',
   })
   @IsOptional()
-  @IsEnum(FirmnessEnum)
-  preferredFirmness?: FirmnessEnum;
+  @IsString()
+  preferredFirmness?: string;
 
   @ApiPropertyOptional({ example: true, description: 'Has back pain' })
   @IsOptional()
-  @IsBoolean()
-  hasBackPain?: boolean;
+  hasBackPain?: any;
 
   @ApiPropertyOptional({ example: false, description: 'Has neck pain' })
   @IsOptional()
-  @IsBoolean()
-  hasNeckPain?: boolean;
+  hasNeckPain?: any;
 
   @ApiPropertyOptional({ example: true, description: 'Is user currently pregnant' })
   @IsOptional()
-  @IsBoolean()
-  isPregnant?: boolean;
+  isPregnant?: any;
 
   @ApiPropertyOptional({
     example: ['Scoliosis', 'Arthritis'],
@@ -95,9 +83,7 @@ export class SubmitSleepQuizDto {
     description: 'Specific medical conditions',
   })
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  medicalConditions?: string[];
+  medicalConditions?: any;
 
   @ApiPropertyOptional({ example: 'King (6x6ft)', description: 'Preferred mattress size' })
   @IsOptional()
@@ -105,25 +91,22 @@ export class SubmitSleepQuizDto {
   preferredSize?: string;
 
   @ApiPropertyOptional({
-    enum: TemperatureEnum,
-    example: TemperatureEnum.COOL,
+    example: 'cool',
     description: 'Sleeping temperature preference',
   })
   @IsOptional()
-  @IsEnum(TemperatureEnum)
-  temperaturePreference?: TemperatureEnum;
+  @IsString()
+  temperaturePreference?: string;
 
   @ApiPropertyOptional({ example: true, description: 'Sleeps with partner' })
   @IsOptional()
-  @IsBoolean()
-  partnerSleep?: boolean;
+  partnerSleep?: any;
 
   @ApiPropertyOptional({
-    enum: KidsOrAdultsEnum,
-    example: KidsOrAdultsEnum.ADULTS,
+    example: 'adults',
     description: 'Who is the mattress for',
   })
   @IsOptional()
-  @IsEnum(KidsOrAdultsEnum)
-  kidsOrAdults?: KidsOrAdultsEnum;
+  @IsString()
+  kidsOrAdults?: string;
 }
