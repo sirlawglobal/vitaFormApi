@@ -28,9 +28,9 @@ export class SleepQuizService implements OnModuleInit {
       this.logger.log('Seeding initial sleep quiz questions...');
       await this.questionModel.insertMany([
         { id: 'sleepingPosition', label: 'What is your primary sleeping position?', type: 'single-select', options: ['side', 'back', 'stomach', 'combination'], order: 1 },
-        { id: 'bodyWeightKg', label: 'What is your weight in kilograms?', type: 'number', min: 20, max: 300, order: 2 },
-        { id: 'age', label: 'How old are you?', type: 'number', min: 1, max: 120, order: 3 },
-        { id: 'budget', label: 'What is your budget in NGN?', type: 'number', order: 4 },
+        { id: 'bodyWeightKg', label: 'What is your weight range?', type: 'single-select', options: ['Under 60 kg (Light)', '60 - 90 kg (Average)', 'Over 90 kg (Heavy Duty)'], order: 2 },
+        { id: 'age', label: 'What is your age group?', type: 'single-select', options: ['Under 30 years', '30 - 50 years', 'Above 50 years'], order: 3 },
+        { id: 'budget', label: 'What is your preferred mattress budget?', type: 'single-select', options: ['Under ₦100,000', '₦100,000 - ₦300,000', 'Above ₦300,000'], order: 4 },
         { id: 'preferredFirmness', label: 'What mattress firmness do you prefer?', type: 'single-select', options: ['soft', 'medium', 'firm', 'extra-firm'], order: 5 },
         { id: 'hasBackPain', label: 'Do you experience back pain?', type: 'boolean', order: 6 },
         { id: 'hasNeckPain', label: 'Do you experience neck pain?', type: 'boolean', order: 7 },
@@ -41,6 +41,20 @@ export class SleepQuizService implements OnModuleInit {
         { id: 'partnerSleep', label: 'Do you sleep with a partner?', type: 'boolean', order: 12 },
         { id: 'kidsOrAdults', label: 'Who is this mattress for?', type: 'single-select', options: ['kids', 'adults', 'both'], order: 13 }
       ]);
+    } else {
+      // Ensure existing DB records get updated with multi-choice options for numerical fields
+      await this.questionModel.updateOne(
+        { id: 'bodyWeightKg' },
+        { label: 'What is your weight range?', type: 'single-select', options: ['Under 60 kg (Light)', '60 - 90 kg (Average)', 'Over 90 kg (Heavy Duty)'] }
+      );
+      await this.questionModel.updateOne(
+        { id: 'age' },
+        { label: 'What is your age group?', type: 'single-select', options: ['Under 30 years', '30 - 50 years', 'Above 50 years'] }
+      );
+      await this.questionModel.updateOne(
+        { id: 'budget' },
+        { label: 'What is your preferred mattress budget?', type: 'single-select', options: ['Under ₦100,000', '₦100,000 - ₦300,000', 'Above ₦300,000'] }
+      );
     }
   }
 
