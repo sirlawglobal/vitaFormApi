@@ -100,12 +100,9 @@ export class SleepQuizService implements OnModuleInit {
     return quiz;
   }
 
-  async getLatestResultForUser(userId: string): Promise<SleepQuizDocument> {
+  async getLatestResultForUser(userId: string): Promise<SleepQuizDocument | null> {
     const quiz = await this.sleepQuizRepository.findLatestByUserId(userId);
-    if (!quiz) {
-      throw new NotFoundException('No sleep quiz found for this user');
-    }
-    return quiz;
+    return quiz || null;
   }
 
   // --- Admin Methods: Questions ---
