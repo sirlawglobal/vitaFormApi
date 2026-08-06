@@ -52,6 +52,7 @@ export class UsersService {
     const updateData: Record<string, any> = {};
     if (dto.firstName !== undefined) updateData.firstName = dto.firstName;
     if (dto.lastName !== undefined) updateData.lastName = dto.lastName;
+    if (dto.phone !== undefined) updateData.phone = dto.phone;
     if (dto.avatarUrl !== undefined) updateData.avatarUrl = dto.avatarUrl;
 
     if (Object.keys(updateData).length === 0) {
