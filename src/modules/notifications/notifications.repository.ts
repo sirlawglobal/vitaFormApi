@@ -36,9 +36,10 @@ export class NotificationsRepository {
   }
 
   async markRead(id: string, userId: string): Promise<Notification | null> {
+    const objectId = Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : userId;
     return this.notificationModel
       .findOneAndUpdate(
-        { _id: new Types.ObjectId(id), userId: new Types.ObjectId(userId) },
+        { _id: new Types.ObjectId(id), userId: { $in: [objectId, userId] } },
         { isRead: true },
         { new: true },
       )
@@ -46,20 +47,23 @@ export class NotificationsRepository {
   }
 
   async markAllRead(userId: string): Promise<number> {
+    const objectId = Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : userId;
     const result = await this.notificationModel
-      .updateMany({ userId: new Types.ObjectId(userId), isRead: false }, { isRead: true })
+      .updateMany({ userId: { $in: [objectId, userId] }, isRead: false }, { isRead: true })
       .exec();
     return result.modifiedCount;
   }
 
   async delete(id: string, userId: string): Promise<boolean> {
+    const objectId = Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : userId;
     const result = await this.notificationModel
-      .deleteOne({ _id: new Types.ObjectId(id), userId: new Types.ObjectId(userId) })
+      .deleteOne({ _id: new Types.ObjectId(id), userId: { $in: [objectId, userId] } })
       .exec();
     return result.deletedCount === 1;
   }
 
   async countUnread(userId: string): Promise<number> {
-    return this.notificationModel.countDocuments({ userId: new Types.ObjectId(userId), isRead: false }).exec();
+    const objectId = Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : userId;
+    return this.notificationModel.countDocuments({ userId: { $in: [objectId, userId] }, isRead: false }).exec();
   }
 }
