@@ -21,7 +21,8 @@ export class NotificationsRepository {
   }
 
   async findByUser(userId: string, skip: number, limit: number): Promise<[Notification[], number]> {
-    const filter = { userId: new Types.ObjectId(userId) };
+    const objectId = Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : userId;
+    const filter = { userId: { $in: [objectId, userId] } };
     const [items, total] = await Promise.all([
       this.notificationModel
         .find(filter)

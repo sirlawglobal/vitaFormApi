@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Types } from 'mongoose';
 import { NotificationsRepository } from './notifications.repository';
 import { Notification, NotificationType } from './notifications.schema';
 import { QueueService } from '../../infrastructure/queue/queue.service';
@@ -65,7 +66,7 @@ export class NotificationsService {
     }
 
     const notificationDocs = eligibleUsers.map((user) => ({
-      userId: user._id.toString(),
+      userId: new Types.ObjectId(user._id.toString()),
       type,
       title,
       body,
@@ -73,7 +74,7 @@ export class NotificationsService {
     }));
 
     // 1. Bulk insert in-app notifications
-    await this.notificationsRepository.insertMany(notificationDocs);
+    await this.notificationsRepository.insertMany(notificationDocs as any);
 
     // 2. Queue push notifications
     let pushSentCount = 0;
