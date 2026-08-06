@@ -60,12 +60,12 @@ export class NotificationsService {
     body: string,
     data?: Record<string, any>,
   ): Promise<{ sentCount: number }> {
-    const eligibleUsers = await this.usersRepository.findPushEligibleUsers();
-    if (eligibleUsers.length === 0) {
+    const allActiveUsers = await this.usersRepository.findAllActiveUsersForNotifications();
+    if (allActiveUsers.length === 0) {
       return { sentCount: 0 };
     }
 
-    const notificationDocs = eligibleUsers.map((user) => ({
+    const notificationDocs = allActiveUsers.map((user) => ({
       userId: new Types.ObjectId(user._id.toString()),
       type,
       title,
@@ -78,25 +78,27 @@ export class NotificationsService {
 
     // 2. Queue push notifications
     let pushSentCount = 0;
-    for (const user of eligibleUsers) {
-      const fcmTokens = user.devices
-        ?.map((d) => d.fcmToken)
-        .filter((token): token is string => !!token);
+    for (const user of allActiveUsers) {
+      if (user.preferences?.pushNotifications !== false) {
+        const fcmTokens = user.devices
+          ?.map((d) => d.fcmToken)
+          .filter((token): token is string => !!token);
 
-      if (fcmTokens && fcmTokens.length > 0) {
-        await this.queueService.add(QUEUE_NAMES.NOTIFICATION, JOB_NAMES.SEND_PUSH, {
-          userId: user._id.toString(),
-          fcmToken: fcmTokens,
-          title,
-          body,
-          data,
-        });
-        pushSentCount++;
+        if (fcmTokens && fcmTokens.length > 0) {
+          await this.queueService.add(QUEUE_NAMES.NOTIFICATION, JOB_NAMES.SEND_PUSH, {
+            userId: user._id.toString(),
+            fcmToken: fcmTokens,
+            title,
+            body,
+            data,
+          });
+          pushSentCount++;
+        }
       }
     }
 
-    this.logger.log(`Broadcasted '${title}' to ${eligibleUsers.length} users (${pushSentCount} push targets)`);
-    return { sentCount: eligibleUsers.length };
+    this.logger.log(`Broadcasted '${title}' to ${allActiveUsers.length} users (${pushSentCount} push targets)`);
+    return { sentCount: allActiveUsers.length };
   }
 
   async listForUser(userId: string, page: number, limit: number): Promise<{ data: Notification[]; total: number }> {

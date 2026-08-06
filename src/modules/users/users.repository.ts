@@ -185,4 +185,16 @@ export class UsersRepository {
       .select('_id devices') // Only fetch what we need for sending pushes
       .exec();
   }
+
+  /**
+   * Fetches all active users for receiving broadcast notifications.
+   */
+  async findAllActiveUsersForNotifications(): Promise<User[]> {
+    return this.userModel
+      .find({
+        isActive: true,
+      })
+      .select('_id devices preferences') // Fetch preferences to check push eligibility per user
+      .exec();
+  }
 }
