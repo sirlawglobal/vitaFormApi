@@ -9,13 +9,16 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedRequest } from '../../common/types/session.types';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Warranty')
+@ApiBearerAuth()
 @Controller()
 export class WarrantyController {
   constructor(private readonly warrantyService: WarrantyService) {}
 
+  @ApiOperation({ summary: 'Register a product warranty using purchase serial / receipt info' })
+  @ApiResponse({ status: 201, description: 'Warranty registered successfully.' })
   @Post('warranty/register')
   @UseGuards(SessionAuthGuard)
   async registerWarranty(@Req() req: AuthenticatedRequest, @Body() dto: RegisterWarrantyDto) {
@@ -26,6 +29,8 @@ export class WarrantyController {
     };
   }
 
+  @ApiOperation({ summary: 'Retrieve active product warranties registered by current user' })
+  @ApiResponse({ status: 200, description: 'User warranties retrieved successfully.' })
   @Get('warranty/me')
   @UseGuards(SessionAuthGuard)
   async getMyWarranties(@Req() req: AuthenticatedRequest, @Query() query: QueryWarrantyDto) {
@@ -37,6 +42,8 @@ export class WarrantyController {
     };
   }
 
+  @ApiOperation({ summary: 'Retrieve specific warranty registration details' })
+  @ApiResponse({ status: 200, description: 'Warranty details retrieved.' })
   @Get('warranty/:id')
   @UseGuards(SessionAuthGuard)
   async getWarrantyDetails(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
@@ -47,6 +54,8 @@ export class WarrantyController {
     };
   }
 
+  @ApiOperation({ summary: 'File a warranty claim with optional photo evidence' })
+  @ApiResponse({ status: 201, description: 'Warranty claim submitted successfully.' })
   @Post('warranty/:id/claim')
   @UseGuards(SessionAuthGuard)
   async fileClaim(
@@ -63,6 +72,8 @@ export class WarrantyController {
 
   // --- Admin Routes ---
 
+  @ApiOperation({ summary: '[Admin] List all submitted warranty claims' })
+  @ApiResponse({ status: 200, description: 'Warranty claims retrieved successfully.' })
   @Get('admin/warranty/claims')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -75,6 +86,8 @@ export class WarrantyController {
     };
   }
 
+  @ApiOperation({ summary: '[Admin] Moderate, approve, or resolve a warranty claim' })
+  @ApiResponse({ status: 200, description: 'Warranty claim moderated successfully.' })
   @Patch('admin/warranty/:warrantyId/claims/:claimId')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

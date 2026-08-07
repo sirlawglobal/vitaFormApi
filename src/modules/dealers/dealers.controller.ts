@@ -5,13 +5,17 @@ import { SessionAuthGuard } from '../../common/guards/session-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
-import { ApiTags } from '@nestjs/swagger';
+import { Public } from '../../common/decorators/public.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Dealers')
 @Controller()
 export class DealersController {
   constructor(private readonly dealersService: DealersService) { }
 
+  @ApiOperation({ summary: 'Find nearby Vitafoam authorized dealers by latitude & longitude' })
+  @ApiResponse({ status: 200, description: 'Nearby dealers retrieved successfully.' })
+  @Public()
   @Get('dealers/nearby')
   async getNearbyDealers(
     @Query('lat') lat: string,
@@ -31,6 +35,9 @@ export class DealersController {
 
   // --- Admin Routes ---
 
+  @ApiOperation({ summary: '[Admin] Register a new authorized dealer location' })
+  @ApiResponse({ status: 201, description: 'Dealer registered successfully.' })
+  @ApiBearerAuth()
   @Post('admin/dealers')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -42,6 +49,9 @@ export class DealersController {
     };
   }
 
+  @ApiOperation({ summary: '[Admin] Retrieve all registered dealer locations' })
+  @ApiResponse({ status: 200, description: 'Dealers retrieved successfully.' })
+  @ApiBearerAuth()
   @Get('admin/dealers')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -53,6 +63,9 @@ export class DealersController {
     };
   }
 
+  @ApiOperation({ summary: '[Admin] Update dealer location details' })
+  @ApiResponse({ status: 200, description: 'Dealer updated successfully.' })
+  @ApiBearerAuth()
   @Patch('admin/dealers/:id')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

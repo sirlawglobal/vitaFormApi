@@ -8,14 +8,15 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedRequest } from '../../common/types/session.types';
 import { Public } from '../../common/decorators/public.decorator';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Articles (Blog)')
-@ApiBearerAuth()
 @Controller()
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
+  @ApiOperation({ summary: 'Retrieve list of published articles with pagination & optional tag filter' })
+  @ApiResponse({ status: 200, description: 'Published articles retrieved successfully.' })
   @Public()
   @Get('articles')
   async getPublishedArticles(
@@ -31,6 +32,9 @@ export class ArticlesController {
     };
   }
 
+  @ApiOperation({ summary: 'Retrieve single published article by URL slug' })
+  @ApiResponse({ status: 200, description: 'Article detail retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'Article not found.' })
   @Public()
   @Get('articles/:slug')
   async getArticleBySlug(@Param('slug') slug: string) {
@@ -43,6 +47,9 @@ export class ArticlesController {
 
   // --- Admin Routes ---
 
+  @ApiOperation({ summary: '[Admin] List all articles including drafts & published' })
+  @ApiResponse({ status: 200, description: 'Articles list retrieved successfully.' })
+  @ApiBearerAuth()
   @Get('admin/articles')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -65,6 +72,9 @@ export class ArticlesController {
     };
   }
 
+  @ApiOperation({ summary: '[Admin] Create a new draft article' })
+  @ApiResponse({ status: 201, description: 'Article draft created successfully.' })
+  @ApiBearerAuth()
   @Post('admin/articles')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -76,6 +86,9 @@ export class ArticlesController {
     };
   }
 
+  @ApiOperation({ summary: '[Admin] Update article details' })
+  @ApiResponse({ status: 200, description: 'Article updated successfully.' })
+  @ApiBearerAuth()
   @Patch('admin/articles/:id')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -87,6 +100,9 @@ export class ArticlesController {
     };
   }
 
+  @ApiOperation({ summary: '[Admin] Publish an article' })
+  @ApiResponse({ status: 200, description: 'Article published successfully.' })
+  @ApiBearerAuth()
   @Patch('admin/articles/:id/publish')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -98,6 +114,9 @@ export class ArticlesController {
     };
   }
 
+  @ApiOperation({ summary: '[Admin] Delete an article' })
+  @ApiResponse({ status: 200, description: 'Article deleted successfully.' })
+  @ApiBearerAuth()
   @Delete('admin/articles/:id')
   @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
