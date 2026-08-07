@@ -22,7 +22,7 @@ export class NotificationsListener {
       payload.userId,
       NotificationType.ORDER,
       '🛒 Order Placed!',
-      `Your order #${payload.orderNumber} for ₦${payload.amount?.toLocaleString() || payload.amount} has been received.`,
+      `Your order #${payload.orderNumber} for ₦${(payload.amount ?? payload.totalAmount)?.toLocaleString() || (payload.amount ?? payload.totalAmount)} has been received.`,
       { orderId: payload.orderId },
     );
   }
