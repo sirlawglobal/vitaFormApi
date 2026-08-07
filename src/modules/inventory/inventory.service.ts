@@ -61,12 +61,12 @@ export class InventoryService {
 
     if (!inventory) {
       // Verify variant SKU exists across products
-      await this.productsService.getBySku(cleanSku);
+      const product: any = await this.productsService.getBySku(cleanSku);
 
       inventory = await this.inventoryRepository.create(
         {
           sku: cleanSku,
-          productId: new Types.ObjectId(dto.productId),
+          productId: dto.productId ? new Types.ObjectId(dto.productId) : product._id,
           quantity: Math.max(0, dto.quantityChange),
           reserved: 0,
           reorderPoint: dto.reorderPoint ?? 10,

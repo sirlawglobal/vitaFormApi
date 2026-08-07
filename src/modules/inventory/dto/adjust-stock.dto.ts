@@ -14,10 +14,10 @@ export class AdjustStockDto {
   @IsNotEmpty()
   sku!: string;
 
-  @ApiProperty({ example: '65ab1234cd5678ef90123456', description: 'Parent Product ID' })
+  @ApiPropertyOptional({ example: '65ab1234cd5678ef90123456', description: 'Parent Product ID' })
+  @IsOptional()
   @IsMongoId()
-  @IsNotEmpty()
-  productId!: string;
+  productId?: string;
 
   @ApiProperty({ example: 50, description: 'Positive or negative stock quantity change, or total to set if operation is SET' })
   @IsInt()
