@@ -33,6 +33,7 @@ export class AdminService {
       revenueResult,
       revenueTodayResult,
       recentSalesResult,
+      pendingOrders,
     ] = await Promise.all([
       this.adminRepository.countTotalUsers(),
       this.orderModel.countDocuments().exec(),
@@ -57,6 +58,7 @@ export class AdminService {
         { $sort: { _id: 1 } },
         { $limit: 6 }
       ]).exec(),
+      this.orderModel.countDocuments({ orderStatus: 'PENDING' }).exec(),
     ]);
 
     const totalRevenue = revenueResult[0]?.total || 0;
@@ -85,6 +87,7 @@ export class AdminService {
       lowStockProductsCount: lowStockDocs.length,
       activeDealers: 0,
       pendingWarranties: 0,
+      pendingOrders,
       salesData,
       categoryData,
     };
