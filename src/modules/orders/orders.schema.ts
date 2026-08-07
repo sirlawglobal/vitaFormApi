@@ -6,6 +6,9 @@ export type OrderDocument = Order & Document;
 
 @Schema({ _id: false })
 export class OrderLineItem {
+  @Prop({ type: Types.ObjectId, ref: 'Product' })
+  productId?: Types.ObjectId;
+
   @Prop({ required: true, trim: true })
   sku!: string;
 
