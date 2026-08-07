@@ -66,4 +66,24 @@ export class NotificationsRepository {
     const objectId = Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : userId;
     return this.notificationModel.countDocuments({ userId: { $in: [objectId, userId] }, isRead: false }).exec();
   }
+
+  async findRecentDistinctNotifications(limit: number): Promise<Partial<Notification>[]> {
+    return this.notificationModel.aggregate([
+      // Only include PROMO and SYSTEM as they are broadcast candidates
+      { $match: { type: { $in: ['PROMO', 'SYSTEM'] } } },
+      { $sort: { createdAt: -1 } },
+      {
+        $group: {
+          _id: { title: '$title', body: '$body' },
+          type: { $first: '$type' },
+          title: { $first: '$title' },
+          body: { $first: '$body' },
+          data: { $first: '$data' },
+          createdAt: { $first: '$createdAt' }
+        }
+      },
+      { $sort: { createdAt: -1 } },
+      { $limit: limit }
+    ]).exec();
+  }
 }

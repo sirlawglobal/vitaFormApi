@@ -102,4 +102,11 @@ export class NotificationsListener {
       { reviewId: event.reviewId, productId: event.productId },
     );
   }
+
+  @OnEvent(DOMAIN_EVENTS.USER_VERIFIED)
+  async handleUserVerified(event: { userId: string; email: string }) {
+    if (!event?.userId) return;
+    this.logger.log(`Handling ${DOMAIN_EVENTS.USER_VERIFIED} for user ${event.userId}`);
+    await this.notificationsService.sendWelcomeAndRecentNotifications(event.userId);
+  }
 }

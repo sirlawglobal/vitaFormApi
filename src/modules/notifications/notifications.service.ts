@@ -122,4 +122,32 @@ export class NotificationsService {
   async getUnreadCount(userId: string): Promise<number> {
     return this.notificationsRepository.countUnread(userId);
   }
+
+  async sendWelcomeAndRecentNotifications(userId: string): Promise<void> {
+    // 1. Send Welcome Notification
+    await this.send(
+      userId,
+      NotificationType.SYSTEM,
+      'Welcome to Vitafoam!',
+      'Your account has been successfully verified. Enjoy shopping with us!'
+    );
+
+    // 2. Fetch the 3 most recent distinct notifications
+    const recentNotifications = await this.notificationsRepository.findRecentDistinctNotifications(3);
+
+    if (recentNotifications.length > 0) {
+      // 3. Clone them for the new user
+      const clonedDocs = recentNotifications.map((notif) => ({
+        userId: new Types.ObjectId(userId),
+        type: notif.type,
+        title: notif.title,
+        body: notif.body,
+        data: notif.data,
+        isRead: false,
+      }));
+
+      // 4. Insert them
+      await this.notificationsRepository.insertMany(clonedDocs as any);
+    }
+  }
 }
