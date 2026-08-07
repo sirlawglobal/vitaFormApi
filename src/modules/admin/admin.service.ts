@@ -32,6 +32,7 @@ export class AdminService {
       lowStockDocs,
       revenueResult,
       revenueTodayResult,
+      recentSalesResult,
     ] = await Promise.all([
       this.adminRepository.countTotalUsers(),
       this.orderModel.countDocuments().exec(),
