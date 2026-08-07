@@ -7,6 +7,7 @@ import { ProductsRepository } from '../products/products.repository';
 import { UsersRepository } from '../users/users.repository';
 import { OutboxService } from '../../infrastructure/outbox/outbox.service';
 import { DOMAIN_EVENTS } from '../../common/constants/event-names.constants';
+import { PromotionsService } from '../promotions/promotions.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { ERROR_CODES } from '../../common/constants/error-codes.constants';
@@ -14,6 +15,7 @@ import { BusinessException } from '../../common/exceptions/business.exception';
 
 export interface CartItem {
   sku: string;
+  productId?: string;
   name: string;
   price: number;
   quantity: number;
@@ -47,6 +49,7 @@ export class CartService {
     private readonly productsRepository: ProductsRepository,
     private readonly usersRepository: UsersRepository,
     private readonly outboxService: OutboxService,
+    private readonly promotionsService: PromotionsService,
   ) {}
 
   private async getUserDetails(cartId: string, isGuest = false) {
@@ -91,7 +94,7 @@ export class CartService {
       }
     }
 
-    return this.calculateCart(cartId, items, couponCode);
+    return await this.calculateCart(cartId, items, couponCode, isGuest);
   }
 
   async addItem(
@@ -135,6 +138,7 @@ export class CartService {
 
     const item: CartItem = {
       sku: variant.sku,
+      productId: (product._id as any).toString(),
       name: `${product.name} (${variant.name})`,
       price: variant.price,
       quantity: newQty,
@@ -242,17 +246,24 @@ export class CartService {
       });
     }
 
+    // Validate coupon immediately
+    await this.promotionsService.validateCoupon({
+      code: couponCode,
+      cartTotal: cart.subTotal,
+      productIds: cart.items.map(i => i.productId).filter(Boolean) as string[]
+    });
+
     const key = this.getCartKey(cartId, isGuest);
     await this.cacheService.hset(key, { __meta_coupon: couponCode });
     await this.cacheService.expire(key, CART_TTL_SECONDS);
 
-    return this.getCart(cartId, isGuest);
+    return await this.getCart(cartId, isGuest);
   }
 
   async removeCoupon(cartId: string, isGuest = false): Promise<CartCalculation> {
     const key = this.getCartKey(cartId, isGuest);
     await this.cacheService.hdel(key, '__meta_coupon');
-    return this.getCart(cartId, isGuest);
+    return await this.getCart(cartId, isGuest);
   }
 
   async mergeGuestCart(guestSessionId: string, userId: string): Promise<CartCalculation> {
@@ -265,7 +276,7 @@ export class CartService {
     ]);
 
     if (!guestData || Object.keys(guestData).length === 0) {
-      return this.getCart(userId, false);
+      return await this.getCart(userId, false);
     }
 
     const mergedData: Record<string, string> = { ...(userData || {}) };
@@ -292,22 +303,37 @@ export class CartService {
     await this.cacheService.del(guestKey);
 
     this.logger.log(`Merged guest cart [${guestSessionId}] into user cart [${userId}]`);
-    return this.getCart(userId, false);
+    return await this.getCart(userId, false);
   }
 
-  private calculateCart(
+  private async calculateCart(
     cartId: string,
     items: CartItem[],
     couponCode?: string,
-  ): CartCalculation {
+    isGuest = false,
+  ): Promise<CartCalculation> {
     const subTotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
     let discountAmount = 0;
-    if (couponCode === 'WELCOME10') {
-      discountAmount = Math.round(subTotal * 0.1);
-    } else if (couponCode === 'FLAT5000') {
-      discountAmount = Math.min(5000, subTotal);
+    let finalCouponCode = couponCode;
+
+    if (couponCode) {
+      try {
+        const productIds = items.map(item => item.productId).filter(Boolean) as string[];
+        const result = await this.promotionsService.validateCoupon({
+          code: couponCode,
+          cartTotal: subTotal,
+          productIds
+        });
+        discountAmount = result.discountAmount;
+      } catch (error: any) {
+        // Coupon invalid or expired, ignore it and clear it from cart cache
+        this.logger.warn(`Cart ${cartId}: invalid coupon ${couponCode} - ${error.message}`);
+        finalCouponCode = undefined;
+        const key = this.getCartKey(cartId, isGuest);
+        await this.cacheService.hdel(key, '__meta_coupon');
+      }
     }
 
     const taxableAmount = Math.max(0, subTotal - discountAmount);
@@ -324,7 +350,7 @@ export class CartService {
       taxAmount,
       shippingFee,
       totalAmount,
-      couponCode,
+      couponCode: finalCouponCode,
       updatedAt: new Date().toISOString(),
     };
   }
