@@ -120,8 +120,8 @@ export class OrdersService {
   ): Promise<OrderDocument> {
     const order = await this.getOrderById(id);
 
-    // 1. Strict State Machine Validation
-    if (!isValidOrderTransition(order.orderStatus, dto.status)) {
+    // 1. Strict State Machine Validation (Bypass for admin overrides)
+    if (changedBy !== 'admin' && !isValidOrderTransition(order.orderStatus, dto.status)) {
       throw new BusinessException({
         code: ERROR_CODES.ORDER_STATUS_INVALID_TRANSITION,
         message: `Invalid order status transition from '${order.orderStatus}' to '${dto.status}'`,
