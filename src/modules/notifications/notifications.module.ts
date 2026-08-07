@@ -11,6 +11,8 @@ import { NotificationsListener } from './notifications.listener';
 import { NotificationsController } from './notifications.controller';
 import { UsersModule } from '../users/users.module';
 
+import { AdminModule } from '../admin/admin.module';
+
 /**
  * NotificationsModule initializes the BullMQ consumers (EmailWorker, SmsWorker, PushWorker)
  * and the domain layer for in-app notifications.
@@ -20,6 +22,7 @@ import { UsersModule } from '../users/users.module';
     ConfigModule,
     MongooseModule.forFeature([{ name: Notification.name, schema: NotificationSchema }]),
     UsersModule, // For fetching fcmToken
+    AdminModule, // For fetching platform settings
   ],
   controllers: [NotificationsController],
   providers: [

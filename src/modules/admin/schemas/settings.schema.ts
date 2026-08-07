@@ -31,6 +31,12 @@ export class PlatformSettings {
 
   @Prop({ type: Object, default: {} })
   metadata?: Record<string, any>;
+
+  @Prop({ default: 'Welcome to Vitafoam!' })
+  welcomeNotificationTitle!: string;
+
+  @Prop({ default: 'Your account has been successfully verified. Enjoy shopping with us!' })
+  welcomeNotificationBody!: string;
 }
 
 export const SettingsSchema = SchemaFactory.createForClass(PlatformSettings);

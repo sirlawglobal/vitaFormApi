@@ -78,6 +78,16 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsBoolean()
   maintenanceMode?: boolean;
+
+  @ApiPropertyOptional({ example: 'Welcome to Vitafoam!', description: 'Title of the welcome notification' })
+  @IsOptional()
+  @IsString()
+  welcomeNotificationTitle?: string;
+
+  @ApiPropertyOptional({ example: 'Your account has been verified!', description: 'Body of the welcome notification' })
+  @IsOptional()
+  @IsString()
+  welcomeNotificationBody?: string;
 }
 
 export class CreateBannerDto {

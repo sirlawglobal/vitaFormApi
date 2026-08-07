@@ -5,6 +5,7 @@ import { Notification, NotificationType } from './notifications.schema';
 import { QueueService } from '../../infrastructure/queue/queue.service';
 import { QUEUE_NAMES, JOB_NAMES } from '../../common/constants/queue-names.constants';
 import { UsersRepository } from '../users/users.repository';
+import { AdminRepository } from '../admin/admin.repository';
 
 @Injectable()
 export class NotificationsService {
@@ -14,6 +15,7 @@ export class NotificationsService {
     private readonly notificationsRepository: NotificationsRepository,
     private readonly queueService: QueueService,
     private readonly usersRepository: UsersRepository,
+    private readonly adminRepository: AdminRepository,
   ) {}
 
   async send(
@@ -124,12 +126,16 @@ export class NotificationsService {
   }
 
   async sendWelcomeAndRecentNotifications(userId: string): Promise<void> {
+    const settings = await this.adminRepository.getSettings();
+    const title = settings.welcomeNotificationTitle || 'Welcome to Vitafoam!';
+    const body = settings.welcomeNotificationBody || 'Your account has been successfully verified. Enjoy shopping with us!';
+
     // 1. Send Welcome Notification
     await this.send(
       userId,
       NotificationType.SYSTEM,
-      'Welcome to Vitafoam!',
-      'Your account has been successfully verified. Enjoy shopping with us!'
+      title,
+      body
     );
 
     // 2. Fetch the 3 most recent distinct notifications

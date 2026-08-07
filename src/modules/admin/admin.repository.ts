@@ -58,6 +58,11 @@ export class AdminRepository {
         supportPhone: '+234700VITAFOAM',
         privacyPolicyUrl: 'https://vitafoam.com.ng/privacy',
         termsOfServiceUrl: 'https://vitafoam.com.ng/terms',
+        defaultCurrency: 'NGN',
+        defaultLanguage: 'en',
+        maintenanceMode: false,
+        welcomeNotificationTitle: 'Welcome to Vitafoam!',
+        welcomeNotificationBody: 'Your account has been successfully verified. Enjoy shopping with us!',
       });
     }
     return settings;
