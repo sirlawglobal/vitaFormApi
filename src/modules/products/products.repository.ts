@@ -34,8 +34,19 @@ export class ProductsRepository {
   }
 
   async findBySku(sku: string): Promise<Product | null> {
+    const cleanSku = (sku || '').trim();
+    if (!cleanSku) return null;
+    const escapedSku = cleanSku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const skuRegex = new RegExp(`^${escapedSku}$`, 'i');
     return this.productModel
-      .findOne({ 'variants.sku': sku.trim() })
+      .findOne({
+        $or: [
+          { 'variants.sku': skuRegex },
+          { sku: skuRegex },
+          { 'variants.sku': cleanSku },
+          { sku: cleanSku },
+        ],
+      })
       .exec();
   }
 

@@ -18,7 +18,8 @@ export class ReviewsService {
   async submitReview(userId: string, productId: string, data: { rating: number; title?: string; body: string; images?: string[] }) {
     // 1. Get product variants to check skus
     const product = await this.productsService.getById(productId);
-    const skus = product.variants?.map((v: any) => v.sku) || [];
+    const skus = (product.variants?.map((v: any) => v.sku) || []).filter(Boolean);
+    const normalizedSkus = skus.map((s) => s.trim().toLowerCase());
 
     // 2. Verify Buyer
     const hasBought = await this.ordersRepository.hasDeliveredProduct(userId, skus);
@@ -29,7 +30,7 @@ export class ReviewsService {
     const userOrders = await this.ordersRepository.findByUserId(userId, 1, 100);
     const validOrder = userOrders.items.find(o => 
       String(o.orderStatus).toUpperCase() === 'DELIVERED' && 
-      o.items.some((li: any) => skus.includes(li.sku))
+      o.items.some((li: any) => normalizedSkus.includes((li.sku || '').trim().toLowerCase()))
     );
 
     if (!validOrder) {

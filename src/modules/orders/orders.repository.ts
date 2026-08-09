@@ -128,10 +128,15 @@ export class OrdersRepository {
   async hasDeliveredProduct(userId: string, skus: string[]): Promise<boolean> {
     if (!Types.ObjectId.isValid(userId) || !skus || skus.length === 0) return false;
 
+    const regexes = skus.map((s) => new RegExp(`^${(s || '').trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'));
+
     const count = await this.orderModel.countDocuments({
       userId: new Types.ObjectId(userId),
       orderStatus: OrderStatus.DELIVERED,
-      'items.sku': { $in: skus },
+      $or: [
+        { 'items.sku': { $in: skus } },
+        { 'items.sku': { $in: regexes } },
+      ],
     }).limit(1).exec();
 
     return count > 0;

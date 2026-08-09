@@ -223,15 +223,9 @@ export class ProductsService {
       );
     }
 
-    const variant = product.variants.find((v) => v.sku === sku.trim());
-    if (!variant) {
-      throw new NotFoundException(
-        ERROR_CODES.VARIANT_NOT_FOUND,
-        `Variant SKU '${sku}' missing from product`,
-      );
-    }
-
-    return { product, variant };
+    const cleanSku = (sku || '').trim().toLowerCase();
+    const variant = product.variants?.find((v) => (v.sku || '').trim().toLowerCase() === cleanSku);
+    return { product, variant: variant || product.variants?.[0] };
   }
 
   /**
