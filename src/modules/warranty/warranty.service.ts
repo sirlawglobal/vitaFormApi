@@ -54,6 +54,7 @@ export class WarrantyService {
       productId: actualProductId,
       serialNumber: data.serialNumber,
       purchaseDate: data.purchaseDate,
+      receiptUrl: data.receiptUrl,
       warrantyPeriodYears,
       expiresAt,
       status: expiresAt > new Date() ? WarrantyStatus.ACTIVE : WarrantyStatus.EXPIRED,

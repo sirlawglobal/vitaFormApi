@@ -57,6 +57,9 @@ export class Warranty extends Document {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Dealer' })
   dealerId?: string;
 
+  @Prop({ type: String, trim: true })
+  receiptUrl?: string;
+
   @Prop({ required: true })
   purchaseDate!: Date;
 
