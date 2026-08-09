@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsDateString } from 'class-validator';
+import { IsString, IsNotEmpty, IsDate } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class RegisterWarrantyDto {
   @IsString()
@@ -9,6 +10,7 @@ export class RegisterWarrantyDto {
   @IsNotEmpty()
   productId!: string;
 
-  @IsDateString()
+  @IsDate()
+  @Type(() => Date)
   purchaseDate!: Date;
 }
