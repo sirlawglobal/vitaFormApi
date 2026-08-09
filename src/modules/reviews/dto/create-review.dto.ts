@@ -7,9 +7,9 @@ export class CreateReviewDto {
   rating!: number;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(100)
-  title!: string;
+  title?: string;
 
   @IsString()
   @IsNotEmpty()

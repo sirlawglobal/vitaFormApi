@@ -41,6 +41,15 @@ export class ProductsController {
     return this.productsService.queryProducts(queryDto);
   }
 
+  @ApiOperation({ summary: 'Retrieve product by variant SKU' })
+  @ApiResponse({ status: 200, description: 'Product found by SKU.' })
+  @ApiResponse({ status: 404, description: 'Product variant not found.' })
+  @Public()
+  @Get('sku/:sku')
+  async getProductBySku(@Param('sku') sku: string) {
+    return this.productsService.getBySku(sku);
+  }
+
   @ApiOperation({ summary: 'Retrieve single product detail by URL slug' })
   @ApiResponse({ status: 200, description: 'Product details found.' })
   @ApiResponse({ status: 404, description: 'Product not found or inactive.' })

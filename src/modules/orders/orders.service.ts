@@ -32,6 +32,9 @@ export class OrdersService {
       orderNumber,
       userId: new Types.ObjectId(userId),
       items: checkout.items.map((item) => ({
+        productId: item.productId && Types.ObjectId.isValid(item.productId)
+          ? new Types.ObjectId(item.productId)
+          : undefined,
         sku: item.sku,
         name: item.name,
         price: item.price,

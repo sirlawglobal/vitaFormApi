@@ -15,7 +15,7 @@ export class ReviewsService {
     private readonly productsService: ProductsService,
   ) {}
 
-  async submitReview(userId: string, productId: string, data: { rating: number; title: string; body: string; images?: string[] }) {
+  async submitReview(userId: string, productId: string, data: { rating: number; title?: string; body: string; images?: string[] }) {
     // 1. Get product variants to check skus
     const product = await this.productsService.getById(productId);
     const skus = product.variants?.map((v: any) => v.sku) || [];
@@ -28,7 +28,7 @@ export class ReviewsService {
 
     const userOrders = await this.ordersRepository.findByUserId(userId, 1, 100);
     const validOrder = userOrders.items.find(o => 
-      o.orderStatus === 'DELIVERED' && 
+      String(o.orderStatus).toUpperCase() === 'DELIVERED' && 
       o.items.some((li: any) => skus.includes(li.sku))
     );
 
@@ -43,8 +43,8 @@ export class ReviewsService {
         productId,
         orderId: validOrder._id as unknown as string,
         rating: data.rating,
-        title: data.title,
-        body: data.body,
+        title: data.title?.trim() || 'Verified Purchase Review',
+        body: data.body || (data as any).comment || '',
         images: data.images || [],
         status: ReviewStatus.PENDING,
       });
