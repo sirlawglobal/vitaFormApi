@@ -94,6 +94,11 @@ export class WarrantyService {
       throw new BadRequestException(`Cannot file claim on ${warranty.status.toLowerCase()} warranty`);
     }
 
+    const hasPendingClaim = warranty.claims?.some(claim => claim.status === ClaimStatus.PENDING);
+    if (hasPendingClaim) {
+      throw new BadRequestException('You already have a pending claim for this warranty. Please wait for our team to review it.');
+    }
+
     const updated = await this.warrantyRepository.addClaim(warrantyId, {
       description,
       images,
