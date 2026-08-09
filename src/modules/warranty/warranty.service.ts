@@ -23,7 +23,8 @@ export class WarrantyService {
     try {
       product = await this.productsService.getById(data.productId);
     } catch (e: any) {
-      if (e instanceof NotFoundException) {
+      const isNotFound = e instanceof NotFoundException || (typeof e.getStatus === 'function' && e.getStatus() === 404) || e.status === 404;
+      if (isNotFound) {
         try {
           const res = await this.productsService.getBySku(data.productId);
           product = res.product;
