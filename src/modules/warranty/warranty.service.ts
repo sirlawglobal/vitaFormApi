@@ -15,7 +15,7 @@ export class WarrantyService {
     private readonly outboxService: OutboxService,
   ) { }
 
-  async registerWarranty(userId: string, data: { serialNumber: string; productId: string; purchaseDate: Date }) {
+  async registerWarranty(userId: string, data: { serialNumber: string; productId: string; purchaseDate: Date; receiptUrl?: string }) {
     // 1. Verify product exists (try by ID, fallback to SKU)
     let product;
     let actualProductId = data.productId;
