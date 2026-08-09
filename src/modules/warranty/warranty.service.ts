@@ -16,8 +16,25 @@ export class WarrantyService {
   ) { }
 
   async registerWarranty(userId: string, data: { serialNumber: string; productId: string; purchaseDate: Date }) {
-    // 1. Verify product exists
-    const product = await this.productsService.getById(data.productId);
+    // 1. Verify product exists (try by ID, fallback to SKU)
+    let product;
+    let actualProductId = data.productId;
+
+    try {
+      product = await this.productsService.getById(data.productId);
+    } catch (e: any) {
+      if (e instanceof NotFoundException) {
+        try {
+          const res = await this.productsService.getBySku(data.productId);
+          product = res.product;
+          actualProductId = product._id.toString();
+        } catch (skuErr: any) {
+          throw new NotFoundException(`Product with ID or SKU '${data.productId}' not found or inactive`);
+        }
+      } else {
+        throw e;
+      }
+    }
 
     // Check if serial number already registered
     const existing = await this.warrantyRepository.findBySerialNumber(data.serialNumber);
@@ -33,7 +50,7 @@ export class WarrantyService {
 
     const warranty = await this.warrantyRepository.create({
       userId,
-      productId: data.productId,
+      productId: actualProductId,
       serialNumber: data.serialNumber,
       purchaseDate: data.purchaseDate,
       warrantyPeriodYears,
