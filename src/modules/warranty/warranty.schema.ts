@@ -15,7 +15,7 @@ export enum ClaimStatus {
   RESOLVED = 'RESOLVED',
 }
 
-@Schema({ _id: false, timestamps: true })
+@Schema({ timestamps: true })
 export class WarrantyClaim {
   _id?: string;
 
