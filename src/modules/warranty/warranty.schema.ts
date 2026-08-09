@@ -17,7 +17,8 @@ export enum ClaimStatus {
 
 @Schema({ timestamps: true })
 export class WarrantyClaim {
-  _id?: string;
+  @Prop({ type: MongooseSchema.Types.ObjectId, auto: true })
+  _id?: MongooseSchema.Types.ObjectId;
 
   @Prop({ required: true, trim: true })
   description!: string;
