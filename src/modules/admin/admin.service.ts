@@ -220,6 +220,11 @@ export class AdminService {
     return this.adminRepository.getSettings();
   }
 
+  async getMaintenanceStatus() {
+    const settings = await this.adminRepository.getSettings();
+    return { maintenanceMode: settings.maintenanceMode || false };
+  }
+
   async updateSettings(dto: UpdateSettingsDto, adminUser: { userId: string; email: string }) {
     const before = await this.adminRepository.getSettings();
     const updated = await this.adminRepository.updateSettings(dto);

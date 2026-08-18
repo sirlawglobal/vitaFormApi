@@ -145,6 +145,14 @@ export class AdminController {
     return this.adminService.getSettings();
   }
 
+  @Public()
+  @Get('settings/maintenance')
+  @ApiOperation({ summary: 'Check if platform is in maintenance mode' })
+  @ApiResponse({ status: 200, description: 'Maintenance mode status' })
+  async getMaintenanceStatus() {
+    return this.adminService.getMaintenanceStatus();
+  }
+
   @Patch('settings')
   @ApiOperation({ summary: 'Update global platform settings and maintenance mode' })
   @ApiResponse({ status: 200, description: 'Updated platform settings' })
