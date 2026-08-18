@@ -73,7 +73,7 @@ export class AdminRepository {
     if (!settings) {
       return this.settingsModel.create(dto);
     }
-    Object.assign(settings, dto);
+    settings.set(dto);
     return settings.save();
   }
 
