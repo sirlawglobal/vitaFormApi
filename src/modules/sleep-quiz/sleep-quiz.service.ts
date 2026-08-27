@@ -8,6 +8,8 @@ import { SleepQuizDocument } from './sleep-quiz.schema';
 import { QUEUE_NAMES } from '../../common/constants/queue-names.constants';
 import { SleepQuizQuestion } from './sleep-quiz-question.schema';
 import { SleepQuizRule } from './sleep-quiz-rule.schema';
+import { ProductsRepository } from '../products/products.repository';
+import { Product } from '../products/products.schema';
 
 @Injectable()
 export class SleepQuizService implements OnModuleInit {
@@ -16,6 +18,7 @@ export class SleepQuizService implements OnModuleInit {
   constructor(
     private readonly sleepQuizRepository: SleepQuizRepository,
     private readonly queueService: QueueService,
+    private readonly productsRepository: ProductsRepository,
     @InjectModel(SleepQuizQuestion.name)
     private readonly questionModel: Model<SleepQuizQuestion>,
     @InjectModel(SleepQuizRule.name)
@@ -103,6 +106,58 @@ export class SleepQuizService implements OnModuleInit {
   async getLatestResultForUser(userId: string): Promise<SleepQuizDocument | null> {
     const quiz = await this.sleepQuizRepository.findLatestByUserId(userId);
     return quiz || null;
+  }
+
+  async getResultWithProducts(quizId: string): Promise<{
+    quizId: string;
+    status: string;
+    answers: Record<string, any>;
+    recommendedFirmness?: string;
+    aiRationale?: string;
+    primaryProduct: Product | null;
+    alternatives: Product[];
+    pillows: Product[];
+    protectors: Product[];
+    accessories: Product[];
+    createdAt?: Date;
+  }> {
+    const quiz = await this.getResult(quizId);
+
+    const [primaryProduct, alternatives, pillows, protectors, accessories] = await Promise.all([
+      quiz.bestMattressSku ? this.productsRepository.findBySku(quiz.bestMattressSku) : null,
+      this.resolveSkus(quiz.alternativeSkus || []),
+      this.resolveSkus(quiz.pillowSkus || []),
+      this.resolveSkus(quiz.protectorSkus || []),
+      this.resolveSkus(quiz.accessorySkus || []),
+    ]);
+
+    return {
+      quizId: quiz._id.toString(),
+      status: quiz.status,
+      answers: quiz.answers,
+      recommendedFirmness: quiz.recommendedFirmness,
+      aiRationale: quiz.aiRationale,
+      primaryProduct,
+      alternatives,
+      pillows,
+      protectors,
+      accessories,
+      createdAt: (quiz as any).createdAt,
+    };
+  }
+
+  private async resolveSkus(skus: string[]): Promise<Product[]> {
+    const products: Product[] = [];
+    const seenIds = new Set<string>();
+    for (const sku of skus) {
+      if (!sku) continue;
+      const product = await this.productsRepository.findBySku(sku);
+      if (product && !seenIds.has(product._id.toString())) {
+        seenIds.add(product._id.toString());
+        products.push(product);
+      }
+    }
+    return products;
   }
 
   // --- Admin Methods: Questions ---

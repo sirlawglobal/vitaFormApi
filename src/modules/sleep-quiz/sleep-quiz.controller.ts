@@ -49,6 +49,14 @@ export class SleepQuizController {
     return this.sleepQuizService.getResult(id);
   }
 
+  @Public()
+  @Get('result/:id/products')
+  @ApiOperation({ summary: 'Get quiz results with full product entity details' })
+  @ApiResponse({ status: 200, description: 'Quiz recommendation with fully populated products' })
+  async getResultWithProducts(@Param('id') id: string) {
+    return this.sleepQuizService.getResultWithProducts(id);
+  }
+
   @UseGuards(SessionAuthGuard)
   @ApiBearerAuth()
   @Get('my-latest')
