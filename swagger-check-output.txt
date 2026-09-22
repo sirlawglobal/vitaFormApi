@@ -1,0 +1,8 @@
+﻿STEP0
+STEP1
+STEP2
+STEP3
+STEP4 dto ok
+STEP5 controller ok
+STEP6 service ok
+STEP7 creating app

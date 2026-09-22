@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Query, UseGuards, Patch, Param } from '@nestjs/common';
 import { DealersService } from './dealers.service';
 import { CreateDealerDto } from './dto/create-dealer.dto';
+import { NearbyDealersDto } from './dto/nearby-dealers.dto';
 import { SessionAuthGuard } from '../../common/guards/session-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -15,18 +16,15 @@ export class DealersController {
 
   @ApiOperation({ summary: 'Find nearby Vitafoam authorized dealers by latitude & longitude' })
   @ApiResponse({ status: 200, description: 'Nearby dealers retrieved successfully.' })
+  @ApiResponse({ status: 400, description: 'lat/lng missing, out of range, or radius exceeds 200km.' })
   @Public()
   @Get('dealers/nearby')
-  async getNearbyDealers(
-    @Query('lat') lat: string,
-    @Query('lng') lng: string,
-    @Query('radius') radius: string,
-  ) {
-    const latNum = parseFloat(lat);
-    const lngNum = parseFloat(lng);
-    const radiusKm = radius ? parseFloat(radius) : 20; // Default 20km
-
-    const dealers = await this.dealersService.getNearbyDealers(latNum, lngNum, radiusKm);
+  async getNearbyDealers(@Query() query: NearbyDealersDto) {
+    const dealers = await this.dealersService.getNearbyDealers(
+      query.lat,
+      query.lng,
+      query.radius ?? 20,
+    );
     return {
       message: 'Nearby dealers retrieved successfully',
       data: dealers,
