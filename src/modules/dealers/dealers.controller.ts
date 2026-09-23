@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Query, UseGuards, Patch, Param } from '@ne
 import { DealersService } from './dealers.service';
 import { CreateDealerDto } from './dto/create-dealer.dto';
 import { NearbyDealersDto } from './dto/nearby-dealers.dto';
+import { SearchDealersDto } from './dto/search-dealers.dto';
 import { SessionAuthGuard } from '../../common/guards/session-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -9,20 +10,31 @@ import { Role } from '../../common/enums/role.enum';
 import { Public } from '../../common/decorators/public.decorator';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
+function fallbackAwareMessage(source: 'database' | 'fallback', successMessage: string): string {
+  return source === 'fallback'
+    ? `${successMessage} (fallback data — no dealers onboarded yet)`
+    : successMessage;
+}
+
 @ApiTags('Dealers')
 @Controller()
 export class DealersController {
   constructor(private readonly dealersService: DealersService) { }
 
-  @ApiOperation({
-    summary: 'Find real Vitafoam stores/dealers near a location via Google Places',
-    description:
-      'Searches Google Places for the configured brand query (default "Vitafoam") biased to the given ' +
-      'coordinates. Independent of the admin-managed dealers collection below. If Google Places is not ' +
-      'configured (no API key) or unreachable, transparently degrades to a small static fallback list — ' +
-      'the response `source` field indicates which one was used, so every client (web, mobile, ...) sees ' +
-      'identical fallback behavior without needing its own hardcoded copy.',
-  })
+  @ApiOperation({ summary: 'List all Vitafoam dealers/stores' })
+  @ApiResponse({ status: 200, description: 'Dealers retrieved successfully.' })
+  @Public()
+  @Get('dealers')
+  async listDealers() {
+    const { source, dealers } = await this.dealersService.getPublicDealers();
+    return {
+      message: fallbackAwareMessage(source, 'Dealers retrieved successfully'),
+      source,
+      data: dealers,
+    };
+  }
+
+  @ApiOperation({ summary: 'Find nearby Vitafoam dealers by latitude & longitude' })
   @ApiResponse({ status: 200, description: 'Nearby dealers retrieved successfully.' })
   @ApiResponse({ status: 400, description: 'lat/lng missing, out of range, or radius exceeds 200km.' })
   @Public()
@@ -34,10 +46,26 @@ export class DealersController {
       query.radius ?? 20,
     );
     return {
-      message:
-        source === 'fallback'
-          ? 'Nearby dealers retrieved successfully (fallback data — Google Places not configured)'
-          : 'Nearby dealers retrieved successfully',
+      message: fallbackAwareMessage(source, 'Nearby dealers retrieved successfully'),
+      source,
+      data: dealers,
+    };
+  }
+
+  @ApiOperation({
+    summary: 'Find Vitafoam dealers in a named city/state',
+    description:
+      'Searches by city/state/address text, independent of the caller\'s own location — ' +
+      'e.g. a user in Lagos can search "Enugu" to see dealers there.',
+  })
+  @ApiResponse({ status: 200, description: 'Dealers retrieved successfully.' })
+  @ApiResponse({ status: 400, description: 'location query param missing or too short.' })
+  @Public()
+  @Get('dealers/search')
+  async searchDealers(@Query() query: SearchDealersDto) {
+    const { source, dealers } = await this.dealersService.searchDealersByLocation(query.location);
+    return {
+      message: fallbackAwareMessage(source, 'Dealers retrieved successfully'),
       source,
       data: dealers,
     };
@@ -45,8 +73,8 @@ export class DealersController {
 
   // --- Admin Routes ---
 
-  @ApiOperation({ summary: '[Admin] Register a new authorized dealer location' })
-  @ApiResponse({ status: 201, description: 'Dealer registered successfully.' })
+  @ApiOperation({ summary: '[Admin] Onboard a new authorized dealer location' })
+  @ApiResponse({ status: 201, description: 'Dealer created successfully.' })
   @ApiBearerAuth()
   @Post('admin/dealers')
   @UseGuards(SessionAuthGuard, RolesGuard)
@@ -59,7 +87,7 @@ export class DealersController {
     };
   }
 
-  @ApiOperation({ summary: '[Admin] Retrieve all registered dealer locations' })
+  @ApiOperation({ summary: '[Admin] Retrieve all registered dealer locations (including inactive)' })
   @ApiResponse({ status: 200, description: 'Dealers retrieved successfully.' })
   @ApiBearerAuth()
   @Get('admin/dealers')

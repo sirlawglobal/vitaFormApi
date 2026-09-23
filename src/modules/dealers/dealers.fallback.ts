@@ -1,12 +1,14 @@
 /**
- * Static seed data used only when Google Places is unavailable (no API key
- * configured yet, or the request to Google fails). Keeps the API contract
- * identical for every client so nobody has to hardcode their own fallback.
+ * Static seed data used only when the admin hasn't onboarded any dealers
+ * yet (the `dealers` collection is empty). Keeps the dealer-locator pages
+ * from showing a completely blank state before real data exists.
  */
 export interface FallbackDealer {
   id: string;
   name: string;
   address: string;
+  city: string;
+  state: string;
   phone?: string;
   operatingHours?: string;
   lat: number;
@@ -18,6 +20,8 @@ export const FALLBACK_DEALERS: FallbackDealer[] = [
     id: 'fallback-ikeja',
     name: 'Vitafoam Comfort Center - Ikeja',
     address: '131 Awolowo Way, Ikeja, Lagos',
+    city: 'Ikeja',
+    state: 'Lagos',
     phone: '+234 800 000 0001',
     operatingHours: 'Mon - Sat: 9am - 6pm',
     lat: 6.6018,
@@ -27,6 +31,8 @@ export const FALLBACK_DEALERS: FallbackDealer[] = [
     id: 'fallback-victoria-island',
     name: 'Sleep Gallery VI',
     address: 'Plot 4, Adetokunbo Ademola Street, Victoria Island, Lagos',
+    city: 'Victoria Island',
+    state: 'Lagos',
     phone: '+234 800 000 0002',
     operatingHours: 'Mon - Sat: 9am - 6pm',
     lat: 6.4281,
@@ -36,6 +42,8 @@ export const FALLBACK_DEALERS: FallbackDealer[] = [
     id: 'fallback-surulere',
     name: 'Vitafoam Depot Surulere',
     address: '84 Adeniran Ogunsanya St, Surulere, Lagos',
+    city: 'Surulere',
+    state: 'Lagos',
     phone: '+234 800 000 0003',
     operatingHours: 'Mon - Sat: 9am - 6pm',
     lat: 6.4926,

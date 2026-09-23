@@ -36,6 +36,21 @@ export class DealersRepository {
     return this.dealerModel.find().sort({ createdAt: -1 }).exec();
   }
 
+  async findAllActive(): Promise<Dealer[]> {
+    return this.dealerModel.find({ isActive: true }).sort({ name: 1 }).exec();
+  }
+
+  async findByLocationText(location: string): Promise<Dealer[]> {
+    const pattern = new RegExp(location.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    return this.dealerModel
+      .find({
+        isActive: true,
+        $or: [{ city: pattern }, { state: pattern }, { address: pattern }],
+      })
+      .sort({ name: 1 })
+      .exec();
+  }
+
   async findById(id: string): Promise<Dealer | null> {
     return this.dealerModel.findById(id).exec();
   }

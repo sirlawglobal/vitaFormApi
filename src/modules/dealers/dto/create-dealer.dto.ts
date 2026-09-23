@@ -9,6 +9,14 @@ export class CreateDealerDto {
   @IsNotEmpty()
   address!: string;
 
+  @IsString()
+  @IsNotEmpty()
+  city!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  state!: string;
+
   @IsNumber()
   @Min(-90)
   @Max(90)

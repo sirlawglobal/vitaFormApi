@@ -23,6 +23,12 @@ export class Dealer extends Document {
   @Prop({ required: true, trim: true })
   address!: string;
 
+  @Prop({ required: true, trim: true, index: true })
+  city!: string;
+
+  @Prop({ required: true, trim: true, index: true })
+  state!: string;
+
   @Prop({ type: GeoJSONPoint, required: true, index: '2dsphere' })
   location!: GeoJSONPoint;
 

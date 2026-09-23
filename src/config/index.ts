@@ -6,4 +6,3 @@ export { default as storageConfig } from './storage.config';
 export { default as aiConfig } from './ai.config';
 export { default as paymentConfig } from './payment.config';
 export { default as firebaseConfig } from './firebase.config';
-export { default as googlePlacesConfig } from './google-places.config';

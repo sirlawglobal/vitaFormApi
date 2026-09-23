@@ -22,7 +22,6 @@ import {
   aiConfig,
   paymentConfig,
   firebaseConfig,
-  googlePlacesConfig,
 } from './config';
 
 // Infrastructure
@@ -87,7 +86,6 @@ const ENV = process.env.APP_ENV ?? 'development';
         aiConfig,
         paymentConfig,
         firebaseConfig,
-        googlePlacesConfig,
       ],
       validationSchema: appConfigSchema
         .concat(databaseConfigSchema)
