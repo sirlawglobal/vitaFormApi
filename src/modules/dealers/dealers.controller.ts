@@ -14,19 +14,31 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 export class DealersController {
   constructor(private readonly dealersService: DealersService) { }
 
-  @ApiOperation({ summary: 'Find nearby Vitafoam authorized dealers by latitude & longitude' })
+  @ApiOperation({
+    summary: 'Find real Vitafoam stores/dealers near a location via Google Places',
+    description:
+      'Searches Google Places for the configured brand query (default "Vitafoam") biased to the given ' +
+      'coordinates. Independent of the admin-managed dealers collection below. If Google Places is not ' +
+      'configured (no API key) or unreachable, transparently degrades to a small static fallback list — ' +
+      'the response `source` field indicates which one was used, so every client (web, mobile, ...) sees ' +
+      'identical fallback behavior without needing its own hardcoded copy.',
+  })
   @ApiResponse({ status: 200, description: 'Nearby dealers retrieved successfully.' })
   @ApiResponse({ status: 400, description: 'lat/lng missing, out of range, or radius exceeds 200km.' })
   @Public()
   @Get('dealers/nearby')
   async getNearbyDealers(@Query() query: NearbyDealersDto) {
-    const dealers = await this.dealersService.getNearbyDealers(
+    const { source, dealers } = await this.dealersService.getNearbyDealers(
       query.lat,
       query.lng,
       query.radius ?? 20,
     );
     return {
-      message: 'Nearby dealers retrieved successfully',
+      message:
+        source === 'fallback'
+          ? 'Nearby dealers retrieved successfully (fallback data — Google Places not configured)'
+          : 'Nearby dealers retrieved successfully',
+      source,
       data: dealers,
     };
   }
